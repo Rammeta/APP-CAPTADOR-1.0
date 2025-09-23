@@ -1,0 +1,10 @@
+Flask
+requests
+lxml
+requests-pkcs12
+zeep
+python-dotenv
+pytesseract
+Pillow
+playwright
+p12importer

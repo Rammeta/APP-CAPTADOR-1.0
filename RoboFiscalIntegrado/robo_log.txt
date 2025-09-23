@@ -1,0 +1,142 @@
+2025-09-23 03:52:03,386 | INFO     | --- INICIANDO ROTINA PARA SÃO JOSÉ DOS CAMPOS ---
+2025-09-23 03:52:04,221 | INFO     | Acessando o portal de SJC...
+2025-09-23 03:52:10,193 | INFO     | !!! AÇÃO NECESSÁRIA: Resolva o CAPTCHA para continuar... !!!
+2025-09-23 03:52:20,286 | INFO     | --- Processando cliente 1/1: ID SJC-COM-IM ---
+2025-09-23 03:52:20,286 | INFO     | Iniciando a busca pelo CNPJ: 29.366.802/0001-00...
+2025-09-23 03:52:22,607 | INFO     | Botão 'Pesquisar' clicado. Aguardando a página de resultados carregar...
+2025-09-23 03:52:23,493 | INFO     | Empresa selecionada. Aguardando o painel...
+2025-09-23 03:52:23,493 | INFO     | Painel da empresa selecionado. Aguardando carregamento e estabilização...
+2025-09-23 03:52:24,795 | INFO     | Painel da empresa acessado com SUCESSO!
+2025-09-23 03:52:24,795 | INFO     | Iniciando processo de download dos livros para a competência: 2024-09
+2025-09-23 03:52:24,795 | INFO     | Navegando para a página de relatórios...
+2025-09-23 03:52:30,210 | INFO     | Nenhuma notificação de erro de IM encontrada.
+2025-09-23 03:52:30,210 | INFO     | Aguardando campo de competência ficar visível...
+2025-09-23 03:52:30,216 | INFO     | Preenchendo competência: 09/2024
+2025-09-23 03:52:30,226 | ERROR    | Mensagem: Erro inesperado ao baixar livros para SJC-COM-IM: Locator.fill: Error: Element is not an <input>, <textarea>, <select> or [contenteditable] and does not have a role allowing [aria-readonly]
+Call log:
+  - waiting for locator("#frmRelatorio\\:j_idt90\\:j_idt93\\:idStart")
+    - locator resolved to <span class="p-datepicker ui-calendar" id="frmRelatorio:j_idt90:j_idt93:idStart">…</span>
+    - fill("09/2024")
+  - attempting fill action
+    - waiting for element to be visible, enabled and editable
+
+--- TRACEBACK ---
+Traceback (most recent call last):
+  File "C:\AUTOMA-O-TESTE\RoboFiscalIntegrado\modulos\captador_SJC.py", line 84, in baixar_livros_fiscais
+    pagina.locator(seletor_data_inicio).fill(competencia_formatada)
+  File "C:\Users\Vagner\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\sync_api\_generated.py", line 15889, in fill
+    self._sync(
+  File "C:\Users\Vagner\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "C:\Users\Vagner\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_locator.py", line 212, in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Vagner\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_frame.py", line 590, in fill
+    await self._fill(**locals_to_params(locals()))
+  File "C:\Users\Vagner\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_frame.py", line 602, in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+  File "C:\Users\Vagner\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Vagner\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 558, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Locator.fill: Error: Element is not an <input>, <textarea>, <select> or [contenteditable] and does not have a role allowing [aria-readonly]
+Call log:
+  - waiting for locator("#frmRelatorio\\:j_idt90\\:j_idt93\\:idStart")
+    - locator resolved to <span class="p-datepicker ui-calendar" id="frmRelatorio:j_idt90:j_idt93:idStart">…</span>
+    - fill("09/2024")
+  - attempting fill action
+    - waiting for element to be visible, enabled and editable
+
+
+2025-09-23 03:52:30,226 | INFO     | Processamento do cliente SJC-COM-IM finalizado.
+2025-09-23 03:52:32,226 | INFO     | --- TODOS OS CLIENTES FORAM PROCESSADOS ---
+2025-09-23 03:52:32,417 | INFO     | Navegador fechado.
+2025-09-23 03:54:58,345 | INFO     | --- INICIANDO ROTINA PARA SÃO JOSÉ DOS CAMPOS ---
+2025-09-23 03:54:59,213 | INFO     | Acessando o portal de SJC...
+2025-09-23 03:55:05,303 | INFO     | !!! AÇÃO NECESSÁRIA: Resolva o CAPTCHA para continuar... !!!
+2025-09-23 03:55:15,396 | INFO     | --- Processando cliente 1/1: ID SJC-COM-IM ---
+2025-09-23 03:55:15,396 | INFO     | Iniciando a busca pelo CNPJ: 29.366.802/0001-00...
+2025-09-23 03:55:17,970 | INFO     | Botão 'Pesquisar' clicado. Aguardando a página de resultados carregar...
+2025-09-23 03:55:18,852 | INFO     | Empresa selecionada. Aguardando o painel...
+2025-09-23 03:55:18,852 | INFO     | Painel da empresa selecionado. Aguardando carregamento e estabilização...
+2025-09-23 03:55:20,262 | INFO     | Painel da empresa acessado com SUCESSO!
+2025-09-23 03:55:20,262 | INFO     | Iniciando processo de download dos livros para a competência: 2024-09
+2025-09-23 03:55:20,262 | INFO     | Navegando para a página de relatórios...
+2025-09-23 03:55:26,926 | INFO     | Nenhuma notificação de erro de IM encontrada.
+2025-09-23 03:55:26,926 | INFO     | Aguardando campo de competência ficar visível...
+2025-09-23 03:55:26,932 | INFO     | Preenchendo competência: 09/2024
+2025-09-23 03:55:27,545 | INFO     | Campos de competência preenchidos.
+2025-09-23 03:55:27,545 | INFO     | --- Baixando Livros de Notas PRESTADAS ---
+2025-09-23 03:55:27,546 | INFO     | Gerando relatório para: Prestadas - Situação Normal
+2025-09-23 03:55:43,610 | INFO     | Download não iniciado para Normal. Verificando se há notificação de 'sem movimento'...
+2025-09-23 03:55:43,619 | INFO     | Notificação encontrada: '×
+Nenhum registro encontrado no período informado para a geração do livro fiscal'
+2025-09-23 03:55:43,781 | INFO     | Print de 'Sem Movimento' salvo em: downloads\SJC-COM-IM\SJC-COM-IM_Livro_Prestadas_Normal_SEM_MOVIMENTO_09-2024.png
+2025-09-23 03:55:43,781 | INFO     | Desmarcando a situação 'Normal' para a próxima captura.
+2025-09-23 03:55:44,821 | INFO     | Gerando relatório para: Prestadas - Situação Cancelada
+2025-09-23 03:56:00,850 | INFO     | Download não iniciado para Cancelada. Verificando se há notificação de 'sem movimento'...
+2025-09-23 03:56:00,855 | INFO     | Notificação encontrada: '×
+Nenhum registro encontrado no período informado para a geração do livro fiscal'
+2025-09-23 03:56:00,990 | INFO     | Print de 'Sem Movimento' salvo em: downloads\SJC-COM-IM\SJC-COM-IM_Livro_Prestadas_Cancelada_SEM_MOVIMENTO_09-2024.png
+2025-09-23 03:56:00,990 | INFO     | Processamento do cliente SJC-COM-IM finalizado.
+2025-09-23 03:56:02,990 | INFO     | --- TODOS OS CLIENTES FORAM PROCESSADOS ---
+2025-09-23 03:56:03,168 | INFO     | Navegador fechado.
+2025-09-23 03:56:41,906 | INFO     | --- INICIANDO ROTINA PARA SÃO JOSÉ DOS CAMPOS ---
+2025-09-23 03:56:42,756 | INFO     | Acessando o portal de SJC...
+2025-09-23 03:56:48,789 | INFO     | !!! AÇÃO NECESSÁRIA: Resolva o CAPTCHA para continuar... !!!
+2025-09-23 03:56:58,367 | INFO     | --- Processando cliente 1/1: ID SJC-COM-IM ---
+2025-09-23 03:56:58,367 | INFO     | Iniciando a busca pelo CNPJ: 29.366.802/0001-00...
+2025-09-23 03:57:00,739 | INFO     | Botão 'Pesquisar' clicado. Aguardando a página de resultados carregar...
+2025-09-23 03:57:02,273 | INFO     | Empresa selecionada. Aguardando o painel...
+2025-09-23 03:57:02,273 | INFO     | Painel da empresa selecionado. Aguardando carregamento e estabilização...
+2025-09-23 03:57:04,584 | INFO     | Painel da empresa acessado com SUCESSO!
+2025-09-23 03:57:04,584 | INFO     | Iniciando processo de download dos livros para a competência: 2024-09
+2025-09-23 03:57:04,584 | INFO     | Navegando para a página de relatórios...
+2025-09-23 03:57:09,916 | INFO     | Nenhuma notificação de erro de IM encontrada.
+2025-09-23 03:57:09,916 | INFO     | Aguardando campo de competência ficar visível...
+2025-09-23 03:57:09,924 | INFO     | Preenchendo competência: 09/2024
+2025-09-23 03:57:10,304 | INFO     | Campos de competência preenchidos.
+2025-09-23 03:57:10,304 | INFO     | --- Baixando Livros de Notas PRESTADAS ---
+2025-09-23 03:57:10,304 | INFO     | Gerando relatório para: Prestadas - Situação Normal
+2025-09-23 03:57:26,365 | INFO     | Download não iniciado para Normal. Verificando se há notificação de 'sem movimento'...
+2025-09-23 03:57:26,372 | INFO     | Notificação encontrada: '×
+Nenhum registro encontrado no período informado para a geração do livro fiscal'
+2025-09-23 03:57:26,534 | INFO     | Print de 'Sem Movimento' salvo em: downloads\SJC-COM-IM\SJC-COM-IM_Livro_Prestadas_Normal_SEM_MOVIMENTO_09-2024.png
+2025-09-23 03:57:26,534 | INFO     | Desmarcando a situação 'Normal' para a próxima captura.
+2025-09-23 03:57:27,575 | INFO     | Gerando relatório para: Prestadas - Situação Cancelada
+2025-09-23 03:57:43,605 | INFO     | Download não iniciado para Cancelada. Verificando se há notificação de 'sem movimento'...
+2025-09-23 03:57:43,611 | INFO     | Notificação encontrada: '×
+Nenhum registro encontrado no período informado para a geração do livro fiscal'
+2025-09-23 03:57:43,746 | INFO     | Print de 'Sem Movimento' salvo em: downloads\SJC-COM-IM\SJC-COM-IM_Livro_Prestadas_Cancelada_SEM_MOVIMENTO_09-2024.png
+2025-09-23 03:57:43,746 | INFO     | Processamento do cliente SJC-COM-IM finalizado.
+2025-09-23 03:57:45,747 | INFO     | --- TODOS OS CLIENTES FORAM PROCESSADOS ---
+2025-09-23 03:57:45,927 | INFO     | Navegador fechado.
+2025-09-23 03:58:09,787 | INFO     | --- INICIANDO ROTINA PARA SÃO JOSÉ DOS CAMPOS ---
+2025-09-23 03:58:10,605 | INFO     | Acessando o portal de SJC...
+2025-09-23 03:58:16,681 | INFO     | !!! AÇÃO NECESSÁRIA: Resolva o CAPTCHA para continuar... !!!
+2025-09-23 03:58:34,464 | INFO     | --- Processando cliente 1/1: ID SJC-COM-IM ---
+2025-09-23 03:58:34,464 | INFO     | Iniciando a busca pelo CNPJ: 29.366.802/0001-00...
+2025-09-23 03:58:36,571 | INFO     | Botão 'Pesquisar' clicado. Aguardando a página de resultados carregar...
+2025-09-23 03:58:37,671 | INFO     | Empresa selecionada. Aguardando o painel...
+2025-09-23 03:58:37,671 | INFO     | Painel da empresa selecionado. Aguardando carregamento e estabilização...
+2025-09-23 03:58:39,903 | INFO     | Painel da empresa acessado com SUCESSO!
+2025-09-23 03:58:39,903 | INFO     | Iniciando processo de download dos livros para a competência: 2025-09
+2025-09-23 03:58:39,903 | INFO     | Navegando para a página de relatórios...
+2025-09-23 03:58:47,365 | INFO     | Nenhuma notificação de erro de IM encontrada.
+2025-09-23 03:58:47,365 | INFO     | Aguardando campo de competência ficar visível...
+2025-09-23 03:58:47,372 | INFO     | Preenchendo competência: 09/2025
+2025-09-23 03:58:47,995 | INFO     | Campos de competência preenchidos.
+2025-09-23 03:58:47,996 | INFO     | --- Baixando Livros de Notas PRESTADAS ---
+2025-09-23 03:58:47,996 | INFO     | Gerando relatório para: Prestadas - Situação Normal
+2025-09-23 03:58:49,703 | INFO     | Salvo com sucesso: downloads\SJC-COM-IM\SJC-COM-IM_Livro_Prestadas_Normal_09-2025.pdf
+2025-09-23 03:58:49,704 | INFO     | Desmarcando a situação 'Normal' para a próxima captura.
+2025-09-23 03:58:51,661 | INFO     | Gerando relatório para: Prestadas - Situação Cancelada
+2025-09-23 03:59:07,715 | INFO     | Download não iniciado para Cancelada. Verificando se há notificação de 'sem movimento'...
+2025-09-23 03:59:07,722 | INFO     | Notificação encontrada: '×
+Nenhum registro encontrado no período informado para a geração do livro fiscal'
+2025-09-23 03:59:07,901 | INFO     | Print de 'Sem Movimento' salvo em: downloads\SJC-COM-IM\SJC-COM-IM_Livro_Prestadas_Cancelada_SEM_MOVIMENTO_09-2025.png
+2025-09-23 03:59:07,902 | INFO     | Processamento do cliente SJC-COM-IM finalizado.
+2025-09-23 03:59:09,902 | INFO     | --- TODOS OS CLIENTES FORAM PROCESSADOS ---
+2025-09-23 03:59:10,114 | INFO     | Navegador fechado.

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle - Robô Fiscal</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h1, h2 { color: #2c3e50; }
+        h1 { text-align: center; }
+        h2 { border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-top: 40px; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; }
+        .header-buttons { display: flex; gap: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 5px; font-weight: bold; }
+        input[type="date"], input[type="text"], input[type="month"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; width: 100%; }
+        button, .button { display: inline-block; text-decoration: none; background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: background-color 0.3s; text-align: center; }
+        button:hover, .button:hover { background-color: #2980b9; }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        .button.novo { background-color: #16a085; }
+        .button.import { background-color: #27ae60; }
+        .button.config { background-color: #f39c12; }
+        button.ambas { background-color: #9b59b6; }
+        button.full-routine { background-color: #c0392b; font-weight: bold; padding: 15px 25px;}
+        .client-list table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .client-list th, .client-list td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
+        .client-actions { display: flex; gap: 8px; }
+        .client-actions .button, .client-actions button { font-size: 12px; padding: 5px 10px; }
+        .client-actions .edit { background-color: #3498db; }
+        .client-actions .delete { background-color: #e74c3c; }
+        .separator { border-top: 1px dashed #ccc; margin: 40px 0; }
+        .flash-messages { list-style: none; padding: 0; margin: 0 0 20px 0; }
+        .flash-messages li { padding: 15px; margin-bottom: 10px; border-radius: 4px; color: #fff; }
+        .flash-messages .success { background-color: #2ecc71; }
+        .flash-messages .warning { background-color: #f39c12; }
+        .flash-messages .error { background-color: #e74c3c; }
+        #progress-container { display: none; margin-top: 20px; }
+        .progress-bar { width: 100%; background-color: #f3f3f3; border-radius: 5px; }
+        .progress-bar-inner { width: 0%; height: 25px; background-color: #3498db; text-align: center; line-height: 25px; color: white; border-radius: 5px; transition: width 0.4s ease; }
+        #status-message { margin-top: 10px; font-style: italic; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <h1>Painel de Controle - Robô Fiscal</h1>
+
+        <div class="header-actions">
+            <h2>Clientes Cadastrados</h2>
+            <div class="header-buttons">
+                <a href="{{ url_for('importar_csv') }}" class="button import">Importar CSV</a>
+                <a href="{{ url_for('form_cliente') }}" class="button novo">Adicionar Cliente</a>
+                <a href="{{ url_for('configuracoes') }}" class="button config">Configurações</a>
+            </div>
+        </div>
+        <div class="client-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all-clients"></th>
+                        <th>ID</th>
+                        <th>Razão Social</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                    <tr>
+                        <td><input type="checkbox" name="clientes" value="{{ cliente.id }}" class="client-checkbox"></td>
+                        <td>{{ cliente.id }}</td>
+                        <td>{{ cliente.razao_social }}</td>
+                        <td>
+                            <div class="client-actions">
+                                <a href="{{ url_for('form_cliente', id=cliente.id) }}" class="button edit">Editar</a>
+                                <form action="{{ url_for('excluir_cliente', client_id=cliente.id) }}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                                    <button type="submit" class="delete">Excluir</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" style="text-align:center; padding: 20px;">Nenhum cliente cadastrado.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="separator"></div>
+
+        <div id="progress-container">
+            <div class="progress-bar">
+                <div class="progress-bar-inner" id="progress-bar-inner">0%</div>
+            </div>
+            <p id="status-message">Aguardando...</p>
+        </div>
+
+        <form id="form-full-routine" action="{{ url_for('executar_rotina_completa') }}" method="POST">
+            <h2>Rotina Completa (Livros + Notas)</h2>
+            <p><strong>Defina o Período e a Competência:</strong></p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="full-competencia">Competência (Livros):</label>
+                    <input type="month" id="full-competencia" name="competencia" required>
+                </div>
+                <div class="form-group">
+                    <label for="full-data_inicio">Data Início (Notas):</label>
+                    <input type="date" id="full-data_inicio" name="data_inicio" required>
+                </div>
+                <div class="form-group">
+                    <label for="full-data_fim">Data Fim (Notas):</label>
+                    <input type="date" id="full-data_fim" name="data_fim" required>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" name="headful_mode" value="true"> Ver Execução (Debug)</label>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="submit" class="full-routine">Executar Rotina Completa</button>
+            </div>
+        </form>
+
+        <div class="separator"></div>
+
+        <form id="form-notas" action="{{ url_for('executar_captura_notas') }}" method="POST">
+            <h2>Apenas Capturar Notas Fiscais</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="data_inicio">Data de Início:</label>
+                    <input type="date" id="data_inicio" name="data_inicio" required>
+                </div>
+                <div class="form-group">
+                    <label for="data_fim">Data de Fim:</label>
+                    <input type="date" id="data_fim" name="data_fim" required>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="submit" class="ambas">Capturar Prestadas e Tomadas</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectAllCheckbox = document.getElementById('select-all-clients');
+            const clientCheckboxes = document.querySelectorAll('.client-checkbox');
+            
+            selectAllCheckbox.addEventListener('change', function() {
+                clientCheckboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            });
+
+            const allForms = document.querySelectorAll('form[action^="/executar"]');
+            const allButtons = document.querySelectorAll('button');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar-inner');
+            const statusMessage = document.getElementById('status-message');
+            let progressInterval;
+
+            async function checkProgress() {
+                try {
+                    const response = await fetch('/task_status');
+                    if (!response.ok) throw new Error('A resposta da rede não foi OK');
+                    const data = await response.json();
+
+                    progressBar.style.width = data.progress + '%';
+                    progressBar.textContent = data.progress + '%';
+                    statusMessage.textContent = data.message;
+
+                    if (data.is_done) {
+                        clearInterval(progressInterval);
+                        allButtons.forEach(btn => btn.disabled = false);
+                        progressBar.style.backgroundColor = data.has_error ? '#e74c3c' : '#2ecc71';
+                    }
+                } catch (error) {
+                    statusMessage.textContent = 'Erro ao verificar o status.';
+                    clearInterval(progressInterval);
+                    allButtons.forEach(btn => btn.disabled = false);
+                }
+            }
+
+            allForms.forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+
+                    const selectedIds = Array.from(clientCheckboxes)
+                                        .filter(i => i.checked)
+                                        .map(i => i.value);
+
+                    if (selectedIds.length === 0) {
+                        alert("Por favor, selecione pelo menos um cliente para iniciar a rotina.");
+                        return;
+                    }
+                    
+                    const formData = new FormData(form);
+                    
+                    formData.delete('clientes'); 
+                    selectedIds.forEach(id => {
+                        formData.append('clientes', id);
+                    });
+                    
+                    const actionUrl = form.getAttribute('action');
+
+                    allButtons.forEach(btn => btn.disabled = true);
+                    progressContainer.style.display = 'block';
+                    progressBar.style.width = '0%';
+                    progressBar.textContent = '0%';
+                    progressBar.style.backgroundColor = '#3498db';
+                    statusMessage.textContent = 'Enviando comando...';
+
+                    fetch(actionUrl, { method: 'POST', body: formData })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => Promise.reject(err));
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'started') {
+                            progressInterval = setInterval(checkProgress, 1500);
+                        } else {
+                            statusMessage.textContent = data.message || 'Erro desconhecido ao iniciar a tarefa.';
+                            allButtons.forEach(btn => btn.disabled = false);
+                        }
+                    })
+                    .catch(error => {
+                        statusMessage.textContent = error.message || 'Erro de comunicação com o servidor.';
+                        allButtons.forEach(btn => btn.disabled = false);
+                    });
+                });
+            });
+
+            // Preenchimento de Datas
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const competenciaValue = `${year}-${month}`;
+
+            ['data_inicio', 'full-data_inicio'].forEach(id => document.getElementById(id).valueAsDate = firstDay);
+            ['data_fim', 'full-data_fim'].forEach(id => document.getElementById(id).valueAsDate = today);
+            ['competencia', 'full-competencia'].forEach(id => document.getElementById(id).value = competenciaValue);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Robô Fiscal</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 700px; margin: auto; background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h1 { color: #2c3e50; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        button, .button { display: inline-block; text-decoration: none; background-color: #3498db; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; }
+        .button.cancel { background-color: #95a5a6; }
+        .button.cancel:hover { background-color: #7f8c8d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Configurações Gerais</h1>
+        <p>Estas configurações são usadas como padrão para todos os robôs.</p>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="pfx_padrao_path">Caminho do Certificado Padrão (.pfx):</label>
+                <input type="text" id="pfx_padrao_path" name="pfx_padrao_path" value="{{ config.pfx_padrao_path or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="pfx_padrao_pwd">Senha do Certificado Padrão:</label>
+                <input type="password" id="pfx_padrao_pwd" name="pfx_padrao_pwd" value="{{ config.pfx_padrao_pwd or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="crc">Login CRC:</label>
+                <input type="text" id="crc" name="crc" value="{{ config.crc or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="crc_senha">Senha CRC:</label>
+                <input type="password" id="crc_senha" name="crc_senha" value="{{ config.crc_senha or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="pasta_saida_padrao">Pasta de Saída Padrão:</label>
+                <input type="text" id="pasta_saida_padrao" name="pasta_saida_padrao" value="{{ config.pasta_saida_padrao or '' }}">
+            </div>
+            
+            <div class="button-group">
+                <button type="submit">Salvar Configurações</button>
+                <a href="{{ url_for('index') }}" class="button cancel">Voltar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
