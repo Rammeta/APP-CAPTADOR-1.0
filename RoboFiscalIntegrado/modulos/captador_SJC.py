@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------
-# modulos/captador_SJC.py - v4.4 (Correção final dos seletores de data)
+# modulos/captador_SJC.py - v5.3 (Lidando com IDs dinâmicos para datas)
 #--------------------------------------------------------------------------
 import os
 import re
@@ -70,34 +70,24 @@ def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, confi
                 return
         except PWTimeoutError:
             log_info("Nenhuma notificação de erro de IM encontrada.")
-            
-        ano, mes = competencia.split('-')
-        competencia_formatada = f"{mes}/{ano}"
-        
-        # <<< MUDANÇA: Usando os seletores corretos com o sufixo '_input' >>>
-        seletor_data_inicio = "#frmRelatorio\\:j_idt90\\:j_idt93\\:idStart_input"
-        seletor_data_fim = "#frmRelatorio\\:j_idt90\\:j_idt93\\:idEnd_input"
 
-        log_info("Aguardando campo de competência ficar visível...")
-        pagina.wait_for_selector(seletor_data_inicio, state="visible", timeout=30000)
-        
-        log_info(f"Preenchendo competência: {competencia_formatada}")
-        pagina.locator(seletor_data_inicio).fill(competencia_formatada)
-        time.sleep(random.uniform(0.3, 0.7))
-        pagina.locator(seletor_data_fim).fill(competencia_formatada)
-        log_info("Campos de competência preenchidos.")
-        
-        # --- O resto da lógica de download ---
-        seletor_situacao_normal = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt122"
-        seletor_situacao_cancelada = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt126"
-        seletor_botao_gerar = "#frmRelatorio\\:j_idt90\\:j_idt208"
-        
-        pasta_saida = Path(config_geral.get("pasta_saida_padrao") or "downloads") / cliente_id
-        pasta_saida.mkdir(parents=True, exist_ok=True)
-
+        # --- Sub-função para organizar a lógica de download ---
         def gerar_e_salvar_relatorio(tipo_nota: str, tipo_situacao: str):
             # ... (código interno desta função permanece o mesmo)
             log_info(f"Gerando relatório para: {tipo_nota} - Situação {tipo_situacao}")
+            
+            # <<< MUDANÇA: Os seletores agora dependem do tipo de nota >>>
+            if tipo_nota == "Prestadas":
+                seletor_situacao_normal = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt122"
+                seletor_situacao_cancelada = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt126"
+                seletor_botao_gerar = "#frmRelatorio\\:j_idt90\\:j_idt208"
+            else: # Tomadas
+                # Os IDs aqui são uma suposição baseada na mudança dos campos de data.
+                # Se falhar, precisaremos inspecionar estes elementos na tela de "Tomados".
+                seletor_situacao_normal = "#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt122" 
+                seletor_situacao_cancelada = "#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt126"
+                seletor_botao_gerar = "#frmRelatorio\\:j_idt94\\:j_idt208"
+
             seletor_situacao = seletor_situacao_normal if tipo_situacao == "Normal" else seletor_situacao_cancelada
             pagina.locator(seletor_situacao).click()
             time.sleep(1)
@@ -122,12 +112,46 @@ def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, confi
                 else:
                     log_error(f"O download para {tipo_situacao} falhou e nenhuma notificação de erro foi encontrada.")
 
+        # --- PREPARAÇÃO ---
+        ano, mes = competencia.split('-')
+        competencia_formatada = f"{mes}/{ano}"
+        pasta_saida = Path(config_geral.get("pasta_saida_padrao") or "downloads") / cliente_id
+        pasta_saida.mkdir(parents=True, exist_ok=True)
+        
+        # --- DOWNLOADS DE NOTAS PRESTADAS ---
         log_info("--- Baixando Livros de Notas PRESTADAS ---")
+        seletor_data_inicio_prestadas = "#frmRelatorio\\:j_idt90\\:j_idt93\\:idStart_input"
+        seletor_data_fim_prestadas = "#frmRelatorio\\:j_idt90\\:j_idt93\\:idEnd_input"
+        pagina.wait_for_selector(seletor_data_inicio_prestadas, state="visible", timeout=30000)
+        pagina.locator(seletor_data_inicio_prestadas).fill(competencia_formatada)
+        pagina.locator(seletor_data_fim_prestadas).fill(competencia_formatada)
+        log_info("Competência para PRESTADAS preenchida.")
+        
         gerar_e_salvar_relatorio("Prestadas", "Normal")
-        log_info("Desmarcando a situação 'Normal' para a próxima captura.")
-        pagina.locator(seletor_situacao_normal).click()
+        pagina.locator("#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt122").click() # Desmarca
         time.sleep(1)
         gerar_e_salvar_relatorio("Prestadas", "Cancelada")
+        
+        # --- TRANSIÇÃO PARA NOTAS TOMADAS ---
+        log_info("--- Baixando Livros de Notas TOMADAS ---")
+        pagina.locator("#frmRelatorio\\:j_idt90\\:j_idt106\\:idSelectOneMenu").click()
+        pagina.wait_for_selector("#frmRelatorio\\:j_idt90\\:j_idt106\\:idSelectOneMenu_items", state="visible")
+        pagina.locator("#frmRelatorio\\:j_idt90\\:j_idt106\\:idSelectOneMenu_1").click()
+        log_info("Aguardando página atualizar para 'Serviços Tomados'...")
+        pagina.wait_for_load_state("networkidle", timeout=15000)
+        
+        # --- DOWNLOADS DE NOTAS TOMADAS ---
+        seletor_data_inicio_tomadas = "#frmRelatorio\\:j_idt94\\:j_idt97\\:idStart_input"
+        seletor_data_fim_tomadas = "#frmRelatorio\\:j_idt94\\:j_idt97\\:idEnd_input"
+        pagina.wait_for_selector(seletor_data_inicio_tomadas, state="visible", timeout=30000)
+        pagina.locator(seletor_data_inicio_tomadas).fill(competencia_formatada)
+        pagina.locator(seletor_data_fim_tomadas).fill(competencia_formatada)
+        log_info("Competência para TOMADAS preenchida.")
+        
+        gerar_e_salvar_relatorio("Tomadas", "Normal")
+        pagina.locator("#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt122").click() # Desmarca
+        time.sleep(1)
+        gerar_e_salvar_relatorio("Tomadas", "Cancelada")
         
     except Exception as e:
         log_error(f"Erro inesperado ao baixar livros para {cliente_id}: {e}")
@@ -202,4 +226,4 @@ if __name__ == '__main__':
         "sjc_senha": "Tr@253647!?",
         "cnpj": "29.366.802/0001-00"
     }]
-    executar_captura_sjc(clientes=clientes_teste, config_geral={"pasta_saida_padrao": "downloads"}, competencia="2025-09", headful=True)
+    executar_captura_sjc(clientes=clientes_teste, config_geral={"pasta_saida_padrao": "downloads"}, competencia="2024-09", headful=True)
