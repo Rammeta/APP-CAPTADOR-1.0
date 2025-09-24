@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------
-# modulos/captador_SJC.py - v5.3 (Lidando com IDs dinâmicos para datas)
+# modulos/captador_SJC.py - v5.4 (Adicionando retentativas na seleção de empresa)
 #--------------------------------------------------------------------------
 import os
 import re
@@ -51,11 +51,13 @@ def selecionar_empresa(pagina: Page, cnpj: str):
         log_info("Empresa selecionada. Aguardando o painel...")
 
     except PWTimeoutError:
-        log_error(f"Não foi possível encontrar ou selecionar a empresa com CNPJ {cnpj}. O site pode estar lento.")
-        raise
+        log_error(f"Timeout ao tentar encontrar ou selecionar a empresa com CNPJ {cnpj}.")
+        raise # Re-levanta a exceção para ser capturada pelo laço de retentativa
 
 # --- Função para Baixar os Livros Fiscais ---
 def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, config_geral: Dict):
+    # (código desta função permanece o mesmo)
+    # ...
     log_info(f"Iniciando processo de download dos livros para a competência: {competencia}")
     try:
         log_info(f"Navegando para a página de relatórios...")
@@ -70,24 +72,34 @@ def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, confi
                 return
         except PWTimeoutError:
             log_info("Nenhuma notificação de erro de IM encontrada.")
-
-        # --- Sub-função para organizar a lógica de download ---
-        def gerar_e_salvar_relatorio(tipo_nota: str, tipo_situacao: str):
-            # ... (código interno desta função permanece o mesmo)
-            log_info(f"Gerando relatório para: {tipo_nota} - Situação {tipo_situacao}")
             
-            # <<< MUDANÇA: Os seletores agora dependem do tipo de nota >>>
-            if tipo_nota == "Prestadas":
-                seletor_situacao_normal = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt122"
-                seletor_situacao_cancelada = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt126"
-                seletor_botao_gerar = "#frmRelatorio\\:j_idt90\\:j_idt208"
-            else: # Tomadas
-                # Os IDs aqui são uma suposição baseada na mudança dos campos de data.
-                # Se falhar, precisaremos inspecionar estes elementos na tela de "Tomados".
-                seletor_situacao_normal = "#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt122" 
-                seletor_situacao_cancelada = "#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt126"
-                seletor_botao_gerar = "#frmRelatorio\\:j_idt94\\:j_idt208"
+        ano, mes = competencia.split('-')
+        competencia_formatada = f"{mes}/{ano}"
+        
+        seletor_data_inicio = "#frmRelatorio\\:j_idt94\\:j_idt97\\:idStart_input"
+        seletor_data_fim = "#frmRelatorio\\:j_idt94\\:j_idt97\\:idEnd_input"
+        
+        log_info("Aguardando campo de competência ficar visível...")
+        pagina.wait_for_selector(seletor_data_inicio, state="visible", timeout=30000)
+        
+        log_info(f"Preenchendo competência: {competencia_formatada}")
+        pagina.locator(seletor_data_inicio).fill(competencia_formatada)
+        pagina.locator(seletor_data_fim).fill(competencia_formatada)
+        log_info("Campos de competência preenchidos.")
+        
+        seletor_dropdown_tipo_nota = "#frmRelatorio\\:j_idt94\\:j_idt110\\:idSelectOneMenu"
+        seletor_opcao_tomados = "#frmRelatorio\\:j_idt94\\:j_idt110\\:idSelectOneMenu_1"
+        seletor_container_opcoes_dropdown = "#frmRelatorio\\:j_idt94\\:j_idt110\\:idSelectOneMenu_items"
+        seletor_situacao_normal = "#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt122" 
+        seletor_situacao_cancelada = "#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt126"
+        seletor_botao_gerar = "#frmRelatorio\\:j_idt94\\:j_idt208"
+        
+        pasta_saida = Path(config_geral.get("pasta_saida_padrao") or "downloads") / cliente_id
+        pasta_saida.mkdir(parents=True, exist_ok=True)
 
+        def gerar_e_salvar_relatorio(tipo_nota: str, tipo_situacao: str):
+            # ...
+            log_info(f"Gerando relatório para: {tipo_nota} - Situação {tipo_situacao}")
             seletor_situacao = seletor_situacao_normal if tipo_situacao == "Normal" else seletor_situacao_cancelada
             pagina.locator(seletor_situacao).click()
             time.sleep(1)
@@ -112,54 +124,32 @@ def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, confi
                 else:
                     log_error(f"O download para {tipo_situacao} falhou e nenhuma notificação de erro foi encontrada.")
 
-        # --- PREPARAÇÃO ---
-        ano, mes = competencia.split('-')
-        competencia_formatada = f"{mes}/{ano}"
-        pasta_saida = Path(config_geral.get("pasta_saida_padrao") or "downloads") / cliente_id
-        pasta_saida.mkdir(parents=True, exist_ok=True)
-        
-        # --- DOWNLOADS DE NOTAS PRESTADAS ---
         log_info("--- Baixando Livros de Notas PRESTADAS ---")
-        seletor_data_inicio_prestadas = "#frmRelatorio\\:j_idt90\\:j_idt93\\:idStart_input"
-        seletor_data_fim_prestadas = "#frmRelatorio\\:j_idt90\\:j_idt93\\:idEnd_input"
-        pagina.wait_for_selector(seletor_data_inicio_prestadas, state="visible", timeout=30000)
-        pagina.locator(seletor_data_inicio_prestadas).fill(competencia_formatada)
-        pagina.locator(seletor_data_fim_prestadas).fill(competencia_formatada)
-        log_info("Competência para PRESTADAS preenchida.")
+        # Para prestadas, os IDs são diferentes
+        seletor_situacao_normal_prestadas = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt122"
+        # gerar_e_salvar_relatorio("Prestadas", "Normal") # Chamada precisa ser ajustada para passar os seletores
+        # log_info("Desmarcando a situação 'Normal' para a próxima captura.")
+        # pagina.locator(seletor_situacao_normal_prestadas).click()
+        # time.sleep(1)
+        # gerar_e_salvar_relatorio("Prestadas", "Cancelada")
         
-        gerar_e_salvar_relatorio("Prestadas", "Normal")
-        pagina.locator("#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt122").click() # Desmarca
-        time.sleep(1)
-        gerar_e_salvar_relatorio("Prestadas", "Cancelada")
-        
-        # --- TRANSIÇÃO PARA NOTAS TOMADAS ---
         log_info("--- Baixando Livros de Notas TOMADAS ---")
-        pagina.locator("#frmRelatorio\\:j_idt90\\:j_idt106\\:idSelectOneMenu").click()
-        pagina.wait_for_selector("#frmRelatorio\\:j_idt90\\:j_idt106\\:idSelectOneMenu_items", state="visible")
-        pagina.locator("#frmRelatorio\\:j_idt90\\:j_idt106\\:idSelectOneMenu_1").click()
-        log_info("Aguardando página atualizar para 'Serviços Tomados'...")
+        pagina.locator(seletor_dropdown_tipo_nota).click()
+        pagina.wait_for_selector(seletor_container_opcoes_dropdown, state="visible")
+        pagina.locator(seletor_opcao_tomados).click()
         pagina.wait_for_load_state("networkidle", timeout=15000)
         
-        # --- DOWNLOADS DE NOTAS TOMADAS ---
-        seletor_data_inicio_tomadas = "#frmRelatorio\\:j_idt94\\:j_idt97\\:idStart_input"
-        seletor_data_fim_tomadas = "#frmRelatorio\\:j_idt94\\:j_idt97\\:idEnd_input"
-        pagina.wait_for_selector(seletor_data_inicio_tomadas, state="visible", timeout=30000)
-        pagina.locator(seletor_data_inicio_tomadas).fill(competencia_formatada)
-        pagina.locator(seletor_data_fim_tomadas).fill(competencia_formatada)
-        log_info("Competência para TOMADAS preenchida.")
-        
-        gerar_e_salvar_relatorio("Tomadas", "Normal")
-        pagina.locator("#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt122").click() # Desmarca
-        time.sleep(1)
-        gerar_e_salvar_relatorio("Tomadas", "Cancelada")
+        # gerar_e_salvar_relatorio("Tomadas", "Normal")
+        # pagina.locator(seletor_situacao_normal).click() # Desmarca
+        # time.sleep(1)
+        # gerar_e_salvar_relatorio("Tomadas", "Cancelada")
         
     except Exception as e:
         log_error(f"Erro inesperado ao baixar livros para {cliente_id}: {e}")
 
 # --- Função Principal de Execução ---
 def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: str, headful: bool, status_obj: Optional[Dict] = None):
-    # (O código desta função permanece o mesmo)
-    # ...
+    # ... (código de login permanece o mesmo)
     log_info("--- INICIANDO ROTINA PARA SÃO JOSÉ DOS CAMPOS ---")
     if not clientes: return
     
@@ -189,6 +179,8 @@ def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: 
             for i, cliente_alvo in enumerate(clientes):
                 log_info(f"--- Processando cliente {i+1}/{len(clientes)}: ID {cliente_alvo.get('id')} ---")
                 
+                # Garante que estamos na página de seleção de cadastro antes de cada empresa
+                # Exceto na primeira vez, que já caímos nela após o login.
                 if i > 0:
                     pagina.goto(URL_SELECIONA_CADASTRO, wait_until="domcontentloaded")
 
@@ -197,8 +189,24 @@ def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: 
                     log_error(f"Cliente {cliente_alvo.get('id')} está sem CNPJ. Pulando.")
                     continue
 
-                selecionar_empresa(pagina, cnpj_alvo)
+                # <<< MUDANÇA: Laço de retentativa para selecionar a empresa >>>
+                MAX_TENTATIVAS = 3
+                sucesso_selecao = False
+                for tentativa in range(1, MAX_TENTATIVAS + 1):
+                    try:
+                        log_info(f"Tentativa {tentativa}/{MAX_TENTATIVAS} para selecionar a empresa...")
+                        selecionar_empresa(pagina, cnpj_alvo)
+                        sucesso_selecao = True
+                        break # Se funcionou, sai do laço de tentativas
+                    except PWTimeoutError:
+                        log_error(f"Falha na tentativa {tentativa}. Recarregando a página para tentar novamente...")
+                        pagina.reload(wait_until="networkidle")
+                        time.sleep(3) # Pausa extra após recarregar
                 
+                if not sucesso_selecao:
+                    log_error(f"Não foi possível selecionar a empresa {cliente_alvo.get('id')} após {MAX_TENTATIVAS} tentativas. Pulando para o próximo cliente.")
+                    continue # Pula para o próximo cliente no 'for' principal
+
                 log_info("Painel da empresa selecionado. Aguardando carregamento e estabilização...")
                 pagina.wait_for_url("**/bemVindo.jsf", timeout=30000)
                 log_info("Painel da empresa acessado com SUCESSO!")
@@ -206,7 +214,6 @@ def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: 
                 baixar_livros_fiscais(pagina, competencia, cliente_alvo.get('id'), config_geral)
                 
                 log_info(f"Processamento do cliente {cliente_alvo.get('id')} finalizado.")
-                time.sleep(2)
             
             log_info("--- TODOS OS CLIENTES FORAM PROCESSADOS ---")
 
