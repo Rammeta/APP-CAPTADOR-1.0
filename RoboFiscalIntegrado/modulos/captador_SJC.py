@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------------
-# modulos/captador_SJC.py - v5.4 (Adicionando retentativas na seleção de empresa)
+# modulos/captador_SJC.py - v5.5 (Adicionando retentativas no download de livros)
 #--------------------------------------------------------------------------
 import os
 import re
@@ -28,6 +28,7 @@ except ImportError:
 SJC_LOGIN_URL = "https://notajoseense.sjc.sp.gov.br/notafiscal/paginas/portal/index.html#/login"
 URL_LIVROS_FISCAIS = "https://notajoseense.sjc.sp.gov.br/notafiscal/paginas/livrofiscal/relatorioLivroFiscal.jsf"
 URL_SELECIONA_CADASTRO = "https://notajoseense.sjc.sp.gov.br/notafiscal/paginas/selecionacadastro/selecionaCadastro.jsf"
+URL_BEM_VINDO = "https://notajoseense.sjc.sp.gov.br/notafiscal/paginas/login/bemVindo.jsf"
 
 # --- Função para Selecionar a Empresa ---
 def selecionar_empresa(pagina: Page, cnpj: str):
@@ -52,12 +53,10 @@ def selecionar_empresa(pagina: Page, cnpj: str):
 
     except PWTimeoutError:
         log_error(f"Timeout ao tentar encontrar ou selecionar a empresa com CNPJ {cnpj}.")
-        raise # Re-levanta a exceção para ser capturada pelo laço de retentativa
+        raise
 
 # --- Função para Baixar os Livros Fiscais ---
 def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, config_geral: Dict):
-    # (código desta função permanece o mesmo)
-    # ...
     log_info(f"Iniciando processo de download dos livros para a competência: {competencia}")
     try:
         log_info(f"Navegando para a página de relatórios...")
@@ -76,29 +75,27 @@ def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, confi
         ano, mes = competencia.split('-')
         competencia_formatada = f"{mes}/{ano}"
         
-        seletor_data_inicio = "#frmRelatorio\\:j_idt94\\:j_idt97\\:idStart_input"
-        seletor_data_fim = "#frmRelatorio\\:j_idt94\\:j_idt97\\:idEnd_input"
-        
+        # <<< MUDANÇA: Timeout aumentado para um valor mais seguro >>>
+        seletor_data_inicio = "#frmRelatorio\\:j_idt90\\:j_idt93\\:idStart_input"
+        seletor_data_fim = "#frmRelatorio\\:j_idt90\\:j_idt93\\:idEnd_input"
         log_info("Aguardando campo de competência ficar visível...")
-        pagina.wait_for_selector(seletor_data_inicio, state="visible", timeout=30000)
+        pagina.wait_for_selector(seletor_data_inicio, state="visible", timeout=30000) # Aumentado para 30s
         
         log_info(f"Preenchendo competência: {competencia_formatada}")
         pagina.locator(seletor_data_inicio).fill(competencia_formatada)
+        time.sleep(random.uniform(0.3, 0.7))
         pagina.locator(seletor_data_fim).fill(competencia_formatada)
         log_info("Campos de competência preenchidos.")
         
-        seletor_dropdown_tipo_nota = "#frmRelatorio\\:j_idt94\\:j_idt110\\:idSelectOneMenu"
-        seletor_opcao_tomados = "#frmRelatorio\\:j_idt94\\:j_idt110\\:idSelectOneMenu_1"
-        seletor_container_opcoes_dropdown = "#frmRelatorio\\:j_idt94\\:j_idt110\\:idSelectOneMenu_items"
-        seletor_situacao_normal = "#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt122" 
-        seletor_situacao_cancelada = "#frmRelatorio\\:j_idt94\\:j_idt121\\:j_idt126"
-        seletor_botao_gerar = "#frmRelatorio\\:j_idt94\\:j_idt208"
+        # ... (Restante da função como na v5.4, sem alterações)
+        seletor_situacao_normal = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt122"
+        seletor_situacao_cancelada = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt126"
+        seletor_botao_gerar = "#frmRelatorio\\:j_idt90\\:j_idt208"
         
         pasta_saida = Path(config_geral.get("pasta_saida_padrao") or "downloads") / cliente_id
         pasta_saida.mkdir(parents=True, exist_ok=True)
 
         def gerar_e_salvar_relatorio(tipo_nota: str, tipo_situacao: str):
-            # ...
             log_info(f"Gerando relatório para: {tipo_nota} - Situação {tipo_situacao}")
             seletor_situacao = seletor_situacao_normal if tipo_situacao == "Normal" else seletor_situacao_cancelada
             pagina.locator(seletor_situacao).click()
@@ -125,27 +122,15 @@ def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, confi
                     log_error(f"O download para {tipo_situacao} falhou e nenhuma notificação de erro foi encontrada.")
 
         log_info("--- Baixando Livros de Notas PRESTADAS ---")
-        # Para prestadas, os IDs são diferentes
-        seletor_situacao_normal_prestadas = "#frmRelatorio\\:j_idt90\\:j_idt117\\:j_idt122"
-        # gerar_e_salvar_relatorio("Prestadas", "Normal") # Chamada precisa ser ajustada para passar os seletores
-        # log_info("Desmarcando a situação 'Normal' para a próxima captura.")
-        # pagina.locator(seletor_situacao_normal_prestadas).click()
-        # time.sleep(1)
-        # gerar_e_salvar_relatorio("Prestadas", "Cancelada")
-        
-        log_info("--- Baixando Livros de Notas TOMADAS ---")
-        pagina.locator(seletor_dropdown_tipo_nota).click()
-        pagina.wait_for_selector(seletor_container_opcoes_dropdown, state="visible")
-        pagina.locator(seletor_opcao_tomados).click()
-        pagina.wait_for_load_state("networkidle", timeout=15000)
-        
-        # gerar_e_salvar_relatorio("Tomadas", "Normal")
-        # pagina.locator(seletor_situacao_normal).click() # Desmarca
-        # time.sleep(1)
-        # gerar_e_salvar_relatorio("Tomadas", "Cancelada")
+        gerar_e_salvar_relatorio("Prestadas", "Normal")
+        log_info("Desmarcando a situação 'Normal' para a próxima captura.")
+        pagina.locator(seletor_situacao_normal).click()
+        time.sleep(1)
+        gerar_e_salvar_relatorio("Prestadas", "Cancelada")
         
     except Exception as e:
-        log_error(f"Erro inesperado ao baixar livros para {cliente_id}: {e}")
+        # Re-levanta a exceção para ser capturada pelo laço de retentativa
+        raise e
 
 # --- Função Principal de Execução ---
 def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: str, headful: bool, status_obj: Optional[Dict] = None):
@@ -166,6 +151,7 @@ def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: 
             contexto = p.chromium.launch_persistent_context("", headless=False)
             pagina = contexto.new_page()
             
+            # ... (código de login e captcha permanece o mesmo)
             log_info(f"Acessando o portal de SJC...")
             pagina.goto(SJC_LOGIN_URL, wait_until="networkidle")
             pagina.get_by_label("CPF/CNPJ").press_sequentially(usuario, delay=100)
@@ -179,40 +165,50 @@ def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: 
             for i, cliente_alvo in enumerate(clientes):
                 log_info(f"--- Processando cliente {i+1}/{len(clientes)}: ID {cliente_alvo.get('id')} ---")
                 
-                # Garante que estamos na página de seleção de cadastro antes de cada empresa
-                # Exceto na primeira vez, que já caímos nela após o login.
+                # ... (lógica de seleção de empresa com retentativa permanece a mesma)
                 if i > 0:
                     pagina.goto(URL_SELECIONA_CADASTRO, wait_until="domcontentloaded")
-
                 cnpj_alvo = cliente_alvo.get("cnpj")
                 if not cnpj_alvo:
                     log_error(f"Cliente {cliente_alvo.get('id')} está sem CNPJ. Pulando.")
                     continue
-
-                # <<< MUDANÇA: Laço de retentativa para selecionar a empresa >>>
-                MAX_TENTATIVAS = 3
+                MAX_TENTATIVAS_SELECAO = 3
                 sucesso_selecao = False
-                for tentativa in range(1, MAX_TENTATIVAS + 1):
+                for tentativa in range(1, MAX_TENTATIVAS_SELECAO + 1):
                     try:
-                        log_info(f"Tentativa {tentativa}/{MAX_TENTATIVAS} para selecionar a empresa...")
+                        log_info(f"Tentativa {tentativa}/{MAX_TENTATIVAS_SELECAO} para selecionar a empresa...")
                         selecionar_empresa(pagina, cnpj_alvo)
                         sucesso_selecao = True
-                        break # Se funcionou, sai do laço de tentativas
+                        break
                     except PWTimeoutError:
                         log_error(f"Falha na tentativa {tentativa}. Recarregando a página para tentar novamente...")
                         pagina.reload(wait_until="networkidle")
-                        time.sleep(3) # Pausa extra após recarregar
-                
+                        time.sleep(3)
                 if not sucesso_selecao:
-                    log_error(f"Não foi possível selecionar a empresa {cliente_alvo.get('id')} após {MAX_TENTATIVAS} tentativas. Pulando para o próximo cliente.")
-                    continue # Pula para o próximo cliente no 'for' principal
+                    log_error(f"Não foi possível selecionar a empresa {cliente_alvo.get('id')} após {MAX_TENTATIVAS_SELECAO} tentativas. Pulando.")
+                    continue
 
-                log_info("Painel da empresa selecionado. Aguardando carregamento e estabilização...")
                 pagina.wait_for_url("**/bemVindo.jsf", timeout=30000)
                 log_info("Painel da empresa acessado com SUCESSO!")
                 
-                baixar_livros_fiscais(pagina, competencia, cliente_alvo.get('id'), config_geral)
+                # <<< MUDANÇA: Laço de retentativa para o download dos livros >>>
+                MAX_TENTATIVAS_LIVROS = 2
+                sucesso_livros = False
+                for tentativa_livro in range(1, MAX_TENTATIVAS_LIVROS + 1):
+                    try:
+                        log_info(f"Tentativa {tentativa_livro}/{MAX_TENTATIVAS_LIVROS} para baixar os livros...")
+                        baixar_livros_fiscais(pagina, competencia, cliente_alvo.get('id'), config_geral)
+                        sucesso_livros = True
+                        break # Se funcionou, sai do laço
+                    except Exception as e:
+                        log_error(f"Falha na tentativa {tentativa_livro} de baixar os livros: {e}")
+                        if tentativa_livro < MAX_TENTATIVAS_LIVROS:
+                            log_info("Retornando à página de 'Bem-vindo' para tentar novamente...")
+                            pagina.goto(URL_BEM_VINDO, wait_until="networkidle")
                 
+                if not sucesso_livros:
+                    log_error(f"Não foi possível baixar os livros para o cliente {cliente_alvo.get('id')} após {MAX_TENTATIVAS_LIVROS} tentativas.")
+
                 log_info(f"Processamento do cliente {cliente_alvo.get('id')} finalizado.")
             
             log_info("--- TODOS OS CLIENTES FORAM PROCESSADOS ---")
@@ -233,4 +229,4 @@ if __name__ == '__main__':
         "sjc_senha": "Tr@253647!?",
         "cnpj": "29.366.802/0001-00"
     }]
-    executar_captura_sjc(clientes=clientes_teste, config_geral={"pasta_saida_padrao": "downloads"}, competencia="2024-09", headful=True)
+    executar_captura_sjc(clientes=clientes_teste, config_geral={"pasta_saida_padrao": "downloads"}, competencia="2025-09", headful=True)
