@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml"><head id="j_idt2"><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/primeicons/primeicons.css.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/theme.css.xhtml?ln=css" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/font-awesome/5.13.1/css/all.min-jsf.css.xhtml?ln=webjars" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/font-awesome/5.13.1/css/v4-shims.min-jsf.css.xhtml?ln=webjars" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/metisMenu/dist/metisMenu.css.xhtml?ln=vendor" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/animate.css/animate.css.xhtml?ln=vendor" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/bootstrap/dist/css/bootstrap.css.xhtml?ln=vendor" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/primeflex/3.2.1/primeflex.css.xhtml?ln=webjars" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/primeflex/3.2.1/themes/saga-blue.css.xhtml?ln=webjars" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/pe-icon-7-stroke/css/pe-icon-7-stroke.css.xhtml?ln=fonts" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/pe-icon-7-stroke/css/helper.css.xhtml?ln=fonts" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/style.css.xhtml?ln=css" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/toastr/build/toastr.min.css.xhtml?ln=vendor" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/jarch.css.xhtml?ln=css" /><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/local.css.xhtml?ln=css" /><script type="text/javascript" src="/notafiscal/javax.faces.resource/jquery/jquery.js.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/jquery/jquery-plugins.js.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/core.js.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0"></script><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/components.css.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0" /><script type="text/javascript" src="/notafiscal/javax.faces.resource/moment/moment.js.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/primefaces-extensions.js.xhtml?ln=primefaces-extensions&amp;v=13.0.0&amp;e=13.0.0"></script><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/timer/timer.css.xhtml?ln=primefaces-extensions&amp;v=13.0.0&amp;e=13.0.0" /><script type="text/javascript" src="/notafiscal/javax.faces.resource/timer/timer.js.xhtml?ln=primefaces-extensions&amp;v=13.0.0&amp;e=13.0.0"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/components.js.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/touch/touchswipe.js.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0"></script><link type="text/css" rel="stylesheet" href="/notafiscal/javax.faces.resource/texteditor/texteditor.css.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0" /><script type="text/javascript" src="/notafiscal/javax.faces.resource/texteditor/texteditor.js.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0"></script><script src="/notafiscal/javax.faces.resource/validation/validation.js.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0"></script><script src="/notafiscal/javax.faces.resource/validation/validation.bv.js.xhtml?ln=primefaces&amp;v=13.0.0&amp;e=13.0.0"></script><script type="text/javascript">if(window.PrimeFaces){PrimeFaces.settings.locale='pt_BR';PrimeFaces.settings.viewId='/paginas/templates/paginaErro.xhtml';PrimeFaces.settings.contextPath='/notafiscal';PrimeFaces.settings.cookiesSecure=false;PrimeFaces.settings.validateEmptyFields=true;PrimeFaces.settings.considerEmptyStringNull=true;}</script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>NFS-e | SÃO JOSÉ DOS CAMPOS</title>
+
+    <link rel="shortcut icon" href="/notafiscal/resources/images/logo-login.png" /><script type="text/javascript" src="/notafiscal/javax.faces.resource/toastr/build/toastr.min.js.xhtml?ln=vendor"></script></head><body><div id="messageHeader:messageHeader" class="messageheader base-messageheader messageheader">
+        <script type="application/javascript">
+
+            $('.toast').hide(function () {
+                $(this).remove();
+            });
+
+            // if (configToastr != undefined) {
+            //     configToastr();
+            // }
+
+            var message = ' ';
+
+            if (message.trim() != '') {
+                try {
+                    hideMessageProcess();
+                } catch (e) {
+
+                }
+                toastr.info(message);
+            }
+
+            message = ' ';
+
+            if (message.trim() != '') {
+                try {
+                    hideMessageProcess();
+                } catch (e) {
+
+                }
+                toastr.warning(message);
+            }
+
+            message = ' ';
+
+            if (message.trim() != '') {
+                try {
+                    hideMessageProcess();
+                } catch (e) {
+
+                }
+                toastr.error(message);
+            }
+
+            message = ' ';
+
+            if (message.trim() != '') {
+                try {
+                    hideMessageProcess();
+                } catch (e) {
+
+                }
+                toastr.success(message);
+            }
+        </script></div>
+
+        <div id="template-base" class="show-sidebar"><header id="header" style="display: block">
+
+                <div class="color-line">
+
+                </div>
+
+                <div id="logo" class="light-version">
+                    <div class="logo-menu">
+                        <p class="descricao-sistema-menu" style="margin-top: -10px">Nota Fiscal de Serviço Eletrônica</p>
+                    </div>
+                </div>
+
+                <nav role="navigation">
+                    <div class="header-link hide-menu">
+                        Menu <i class="fa fa-bars"></i>
+                    </div>
+
+                    <div class="small-logo">
+                        <div class="logo-menu" style="padding: 5px">
+                            <p class="descricao-sistema-menu">NFS-e</p>
+                        </div>
+                    </div>
+
+                    <div class="mobile-menu">
+                        <button id="button-menu" type="button" class="navbar-toggle mobile-menu-toggle" data-toggle="collapse" data-target="#mobile-collapse-menu" onclick="$('#button-icons').removeClass('collapsed'); $('#mobile-collapse-icon').removeClass('collapsed'); $('#mobile-collapse-icon').removeClass('in'); ">
+                            <i class="fa fa-chevron-down"></i> Menu
+                        </button>
+
+                        <div id="mobile-collapse-menu" class="collapse mobile-navbar">
+<form id="j_idt23" name="j_idt23" method="post" action="/notafiscal/paginas/templates/paginaErro.xhtml" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt23" value="j_idt23" />
+<input type="hidden" name="javax.faces.ViewState" id="j_id1:javax.faces.ViewState:0" value="-197947346589994671:-6583532863045726173" autocomplete="off" />
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <ul class="side-menu nav">	<li id="0">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Alteração Senha'}]); redirectURL([{name:'urlMenu', value:'../login/alterarSenha.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Alteração Senha</span> 		</a> 	</li> 	<li id="1">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Seleciona Cadastro '}]); redirectURL([{name:'urlMenu', value:'../selecionacadastro/selecionaCadastro.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Seleciona Cadastro </span> 		</a> 	</li> 	<li id="13913">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Manual do Usuário'}]); redirectURL([{name:'urlMenu', value:'../manual/manualExibicao.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Manual do Usuário</span> 		</a> 	</li> 	<li id="13747">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Extrato do Contribuinte'}]); redirectURL([{name:'urlMenu', value:'../dossie/dossieSujeitoPassivoIssqn.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Extrato do Contribuinte</span> 		</a> 	</li> 	<li id="14327">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Denúncia Espontânea'}]); redirectURL([{name:'urlMenu', value:'../denunciaespontanea/denunciaEspontaneaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Denúncia Espontânea</span> 		</a> 	</li> 	<li id="13008">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Configuração Empresa'}]); redirectURL([{name:'urlMenu', value:'../configuracaoempresa/configuracaoEmpresaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Configuração Empresa</span> 		</a> 	</li> <li id="13027" class=""> 		<a href="#"> 			<span class="nav-label">Cadastros</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="12969">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Cadastros->Tomadores / Prestadores'}]); redirectURL([{name:'urlMenu', value:'../pessoa/pessoaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Tomadores / Prestadores</span> 		</a> 	</li> 	<li id="13893">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Cadastros->Importação de Prestadores e Tomadores'}]); redirectURL([{name:'urlMenu', value:'../importacaopessoa/importacaoPessoaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Importação de Prestadores e Tomadores</span> 		</a> 	</li> 	<li id="13047">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Cadastros->Obras'}]); redirectURL([{name:'urlMenu', value:'../obra/obraList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Obras</span> 		</a> 	</li> 	<li id="13033">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Cadastros->Materiais Dedutíveis - Nota Prestador'}]); redirectURL([{name:'urlMenu', value:'../notamaterial/notaMaterialList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Materiais Dedutíveis - Nota Prestador</span> 		</a> 	</li> 		</ul> 	</li> 	<li id="13297">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Conversão Lote RPS'}]); redirectURL([{name:'urlMenu', value:'../loterps/loteRpsList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Conversão Lote RPS</span> 		</a> 	</li> <li id="13029" class=""> 		<a href="#"> 			<span class="nav-label">Nota Fiscal</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="12965">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Nota Fiscal->Emitir Nota Fiscal'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Nota Fiscal</span> 		</a> 	</li> 	<li id="13292">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Nota Fiscal->Emitir Nota Fiscal Retroativa'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf?TIPO=NFR'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Nota Fiscal Retroativa</span> 		</a> 	</li> 	<li id="13143">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Nota Fiscal->NFST-e - Serviços Tomados'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf?TIPO=NFT'}]); showMessageProcess(true);">			<span class="nav-label">NFST-e - Serviços Tomados</span> 		</a> 	</li> 	<li id="13367">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Nota Fiscal->Importação Nota Tomador'}]); redirectURL([{name:'urlMenu', value:'../importacaotomador/importacaoTomadorList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Importação Nota Tomador</span> 		</a> 	</li> 		</ul> 	</li> <li id="13748" class=""> 		<a href="#"> 			<span class="nav-label">Gerenciar NFSE</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="13236">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Consulta Nota Fiscal'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/notaFiscalList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Consulta Nota Fiscal</span> 		</a> 	</li> 	<li id="13407">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Consulta Nota Fiscal Recusada'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/notaFiscalRecusadaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Consulta Nota Fiscal Recusada</span> 		</a> 	</li> 	<li id="13347">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Exportação Nota'}]); redirectURL([{name:'urlMenu', value:'../exportacaonota/exportacaoNota.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Exportação Nota</span> 		</a> 	</li> 	<li id="13427">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Livro Fiscal'}]); redirectURL([{name:'urlMenu', value:'../livrofiscal/relatorioLivroFiscal.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Livro Fiscal</span> 		</a> 	</li> 	<li id="13428">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Talão Fiscal'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/notaFiscalTalaoList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Talão Fiscal</span> 		</a> 	</li> 		</ul> 	</li> <li id="14288" class=""> 		<a href="#"> 			<span class="nav-label">Regime Especial</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="14308">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Regime Especial->Emitir Nota Fiscal Regime Especial'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf?TIPO=NFRE'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Nota Fiscal Regime Especial</span> 		</a> 	</li> 	<li id="14507">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Regime Especial->Emitir Nota Fiscal Retroativa Regime Especial'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf?TIPO=NFRRE'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Nota Fiscal Retroativa Regime Especial</span> 		</a> 	</li> 	<li id="14307">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Regime Especial->Emitir Guia Regime Especial'}]); redirectURL([{name:'urlMenu', value:'../guia/guiaList.jsf?regimeEspecial=S&emitir=S'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Guia Regime Especial</span> 		</a> 	</li> 	<li id="14309">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Regime Especial->Gerenciar Guia Regime Especial'}]); redirectURL([{name:'urlMenu', value:'../guia/guiaList.jsf?regimeEspecial=S'}]); showMessageProcess(true);">			<span class="nav-label">Gerenciar Guia Regime Especial</span> 		</a> 	</li> 		</ul> 	</li> <li id="13010" class=""> 		<a href="#"> 			<span class="nav-label">Guia</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="13009">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Guia->Emissão de Guia'}]); redirectURL([{name:'urlMenu', value:'../guia/guiaList.jsf?emitir=S'}]); showMessageProcess(true);">			<span class="nav-label">Emissão de Guia</span> 		</a> 	</li> 	<li id="13237">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Guia->Gerenciamento de Guia'}]); redirectURL([{name:'urlMenu', value:'../guia/guiaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Gerenciamento de Guia</span> 		</a> 	</li> 		</ul> 	</li> <li id="13888" class=""> 		<a href="#"> 			<span class="nav-label">Declaração Mensal</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="13250">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Declaração Mensal->Declaração Mensal - Dedução Base de Cálculo'}]); redirectURL([{name:'urlMenu', value:'../declaracaodeducao/declaracaoDeducaoList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Declaração Mensal - Dedução Base de Cálculo</span> 		</a> 	</li> 		</ul> 	</li> 
+    </ul><script id="j_idt23:j_idt28" type="text/javascript">saveMenuParent = function() {return PrimeFaces.ab({s:"j_idt23:j_idt28",f:"j_idt23",pa:arguments[0]});}</script><script id="j_idt23:j_idt29" type="text/javascript">redirectURL = function() {return PrimeFaces.ab({s:"j_idt23:j_idt29",f:"j_idt23",pa:arguments[0]});}</script><script id="j_idt23:j_idt30" type="text/javascript">executeEL = function() {return PrimeFaces.ab({s:"j_idt23:j_idt30",f:"j_idt23",onco:function(xhr,status,args,data){hideMessageProcess();;},pa:arguments[0]});}</script><script id="j_idt23:j_idt31" type="text/javascript">executeELAndReload = function() {return PrimeFaces.ab({s:"j_idt23:j_idt31",f:"j_idt23",onco:function(xhr,status,args,data){location.reload();;},pa:arguments[0]});}</script>
+
+</html>
+</form>
+                        </div>
+
+                        <button id="button-icons" type="button" class="navbar-toggle mobile-menu-toggle" data-toggle="collapse" data-target="#mobile-collapse-icon" onclick="$('#button-menu').removeClass('collapsed'); $('#mobile-collapse-menu').removeClass('collapsed'); $('#mobile-collapse-menu').removeClass('in'); ">
+                            <i class="fa fa-chevron-down"></i> Ícones
+                        </button>
+
+                        <div id="mobile-collapse-icon" class="collapse mobile-navbar"><html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml">
+    <ul class="nav navbar-nav no-borders">
+
+        <li class="dropdown home" style="display: block">
+            <a href="../login/bemVindo.jsf" onclick="showMessageProcess()">
+                <i class="pe-7s-home"></i> Home
+            </a>
+        </li>
+            <li class="dropdown home" style="display: block">
+                <a href="../usuario/alteracaoUsuario.jsf">
+                    <i class="pe-7s-id"></i> Alterar Usuário
+                </a>
+            </li>
+            <li class="dropdown">
+                <a href="../manual/manualExibicao.jsf">
+                    <i class="pe-7s-notebook"></i>
+                </a>
+            </li>
+
+        
+        <li class="dropdown base-communication base-alert" style="display: none">
+            <a class="dropdown-toggle label-menu-corner" href="#" data-toggle="dropdown">
+                <i class="pe-7s-speaker"></i> Alertas
+                <span class="label label-info">
+                    0
+                </span>
+            </a>
+
+            <ul class="dropdown-menu hdropdown notification animated flipInX" style="max-height: 600px; overflow: auto">
+                <div class="title">
+                    Alerta(s) Recebido(s)
+                </div>
+            </ul>
+        </li>
+
+        
+        <li class="dropdown base-communication base-message" style="display: none">
+            <a class="dropdown-toggle label-menu-corner" href="#" data-toggle="dropdown">
+                <i class="pe-7s-mail"></i> Mensagens
+                <span class="label label-info">
+                    0
+                </span>
+            </a>
+            <ul class="dropdown-menu hdropdown notification animated flipInX" style="max-height: 600px; overflow: auto">
+                <div class="title">
+                    <a href="../communication/communicationList.xhtml" onclick="showMessageProcess()"> Mensagem(ns) Recebida(s) </a>
+                </div>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a class="botaoSairMenu" href="#">
+                <i class="pe-7s-upload pe-rotate-90"></i> Sair
+            </a>
+        </li>
+    </ul>
+
+</html>
+                        </div>
+                    </div>
+
+                    <div class="navbar-left logo-menu-center">
+                        
+                        <img src="../../resources/images/logo-menu-center.png" height="10px" style="margin: 0" />
+                        
+                    </div>
+
+                    
+                    <div id="navbartop" class="navbar-right"><html lang="pt-BR" xmlns="http://www.w3.org/1999/xhtml">
+    <ul class="nav navbar-nav no-borders">
+
+        <li class="dropdown home" style="display: block">
+            <a href="../login/bemVindo.jsf" onclick="showMessageProcess()">
+                <i class="pe-7s-home"></i> 
+            </a>
+        </li>
+            <li class="dropdown home" style="display: block">
+                <a href="../usuario/alteracaoUsuario.jsf">
+                    <i class="pe-7s-id"></i> 
+                </a>
+            </li>
+            <li class="dropdown">
+                <a href="../manual/manualExibicao.jsf">
+                    <i class="pe-7s-notebook"></i>
+                </a>
+            </li>
+
+        
+        <li class="dropdown base-communication base-alert" style="display: none">
+            <a class="dropdown-toggle label-menu-corner" href="#" data-toggle="dropdown">
+                <i class="pe-7s-speaker"></i> 
+                <span class="label label-info">
+                    0
+                </span>
+            </a>
+
+            <ul class="dropdown-menu hdropdown notification animated flipInX" style="max-height: 600px; overflow: auto">
+                <div class="title">
+                    Alerta(s) Recebido(s)
+                </div>
+            </ul>
+        </li>
+
+        
+        <li class="dropdown base-communication base-message" style="display: none">
+            <a class="dropdown-toggle label-menu-corner" href="#" data-toggle="dropdown">
+                <i class="pe-7s-mail"></i> 
+                <span class="label label-info">
+                    0
+                </span>
+            </a>
+            <ul class="dropdown-menu hdropdown notification animated flipInX" style="max-height: 600px; overflow: auto">
+                <div class="title">
+                    <a href="../communication/communicationList.xhtml" onclick="showMessageProcess()"> Mensagem(ns) Recebida(s) </a>
+                </div>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a class="botaoSairMenu" href="#">
+                <i class="pe-7s-upload pe-rotate-90"></i> 
+            </a>
+        </li>
+    </ul>
+
+</html>
+
+                    </div>
+                </nav></header><nav id="menu" style="display: block">
+                <div id="navigation">
+                    <div class="profile-picture">
+                        <a href="../login/login.jsf" style="display: none">
+                            <img src="../../resources/images/profile.jpg" class="img-circle m-b" alt="logo" />
+                        </a>
+
+                        <div class="stats-label text-color">
+                            
+                            <div class="stats-label text-color">
+                            <span class="font-bold font-uppercase">
+                            	Usuário
+                            </span>
+                                <br />
+                                <small class="text-muted">
+                                    Login - 25322826000106
+                                </small>
+                                <br />
+                                <small class="text-muted">
+                                    Nome - CONTILIDER ASSESSORIA CONTABIL LTDA
+                                </small><div>
+                                    <span class="font-bold font-uppercase">
+                                        <br />
+                                        Representando
+                                    </span><small class="text-muted">
+                                        <br />
+                                        29366802000100
+                                    </small><small class="text-muted">
+                                        <br />
+                                        A2 SERVICOS MEDICOS LTDA
+                                    </small></div>
+                                    <br />
+
+                                    <small class="text-muted">
+                                        IM - 339681
+                                    </small>
+
+                                <div>
+                                    <br />
+                                    <span class="font-bold font-uppercase">
+                                            Último Acesso
+                                        </span>
+                                    <br />
+                                    <small class="text-muted">
+                                        24/09/2025 20:30
+                                    </small>
+                                </div>
+
+                                <div>
+                                    <br />
+<form id="j_idt70" name="j_idt70" method="post" action="/notafiscal/paginas/templates/paginaErro.xhtml" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt70" value="j_idt70" />
+<input type="hidden" name="javax.faces.ViewState" id="j_id1:javax.faces.ViewState:1" value="-197947346589994671:-6583532863045726173" autocomplete="off" />
+<table style="width: 100%">
+<tbody>
+<tr>
+<td><label id="j_idt70:j_idt72" class="ui-outputlabel ui-widget font-bold font-uppercase"><span class="ui-outputlabel-label">Tempo de Sessão</span></label></td>
+</tr>
+<tr>
+<td><span id="j_idt70:timerSessionApplication" title="" class="ui-timer ui-widget ui-widget-header ui-corner-all jarch-timer-sessao" style="border: unset"></span><script id="j_idt70:timerSessionApplication_s" type="text/javascript">$(function(){PrimeFaces.cw("ExtTimer","widget_j_idt70_timerSessionApplication",{id:"j_idt70:timerSessionApplication",timeout:1799,interval:1000,singleRun:true,format:"HH:mm:ss",autoStart:true,forward:false,locale:"pt_BR",listener:function(){PrimeFaces.ab({s:"j_idt70:timerSessionApplication",f:"j_idt70"});}});});</script></td>
+</tr>
+</tbody>
+</table>
+
+</form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="nav" id="side-menu">
+<form id="j_idt74" name="j_idt74" method="post" action="/notafiscal/paginas/templates/paginaErro.xhtml" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt74" value="j_idt74" />
+<input type="hidden" name="javax.faces.ViewState" id="j_id1:javax.faces.ViewState:2" value="-197947346589994671:-6583532863045726173" autocomplete="off" />
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <ul class="side-menu nav">	<li id="0">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Alteração Senha'}]); redirectURL([{name:'urlMenu', value:'../login/alterarSenha.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Alteração Senha</span> 		</a> 	</li> 	<li id="1">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Seleciona Cadastro '}]); redirectURL([{name:'urlMenu', value:'../selecionacadastro/selecionaCadastro.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Seleciona Cadastro </span> 		</a> 	</li> 	<li id="13913">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Manual do Usuário'}]); redirectURL([{name:'urlMenu', value:'../manual/manualExibicao.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Manual do Usuário</span> 		</a> 	</li> 	<li id="13747">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Extrato do Contribuinte'}]); redirectURL([{name:'urlMenu', value:'../dossie/dossieSujeitoPassivoIssqn.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Extrato do Contribuinte</span> 		</a> 	</li> 	<li id="14327">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Denúncia Espontânea'}]); redirectURL([{name:'urlMenu', value:'../denunciaespontanea/denunciaEspontaneaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Denúncia Espontânea</span> 		</a> 	</li> 	<li id="13008">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Configuração Empresa'}]); redirectURL([{name:'urlMenu', value:'../configuracaoempresa/configuracaoEmpresaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Configuração Empresa</span> 		</a> 	</li> <li id="13027" class=""> 		<a href="#"> 			<span class="nav-label">Cadastros</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="12969">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Cadastros->Tomadores / Prestadores'}]); redirectURL([{name:'urlMenu', value:'../pessoa/pessoaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Tomadores / Prestadores</span> 		</a> 	</li> 	<li id="13893">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Cadastros->Importação de Prestadores e Tomadores'}]); redirectURL([{name:'urlMenu', value:'../importacaopessoa/importacaoPessoaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Importação de Prestadores e Tomadores</span> 		</a> 	</li> 	<li id="13047">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Cadastros->Obras'}]); redirectURL([{name:'urlMenu', value:'../obra/obraList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Obras</span> 		</a> 	</li> 	<li id="13033">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Cadastros->Materiais Dedutíveis - Nota Prestador'}]); redirectURL([{name:'urlMenu', value:'../notamaterial/notaMaterialList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Materiais Dedutíveis - Nota Prestador</span> 		</a> 	</li> 		</ul> 	</li> 	<li id="13297">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Conversão Lote RPS'}]); redirectURL([{name:'urlMenu', value:'../loterps/loteRpsList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Conversão Lote RPS</span> 		</a> 	</li> <li id="13029" class=""> 		<a href="#"> 			<span class="nav-label">Nota Fiscal</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="12965">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Nota Fiscal->Emitir Nota Fiscal'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Nota Fiscal</span> 		</a> 	</li> 	<li id="13292">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Nota Fiscal->Emitir Nota Fiscal Retroativa'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf?TIPO=NFR'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Nota Fiscal Retroativa</span> 		</a> 	</li> 	<li id="13143">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Nota Fiscal->NFST-e - Serviços Tomados'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf?TIPO=NFT'}]); showMessageProcess(true);">			<span class="nav-label">NFST-e - Serviços Tomados</span> 		</a> 	</li> 	<li id="13367">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Nota Fiscal->Importação Nota Tomador'}]); redirectURL([{name:'urlMenu', value:'../importacaotomador/importacaoTomadorList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Importação Nota Tomador</span> 		</a> 	</li> 		</ul> 	</li> <li id="13748" class=""> 		<a href="#"> 			<span class="nav-label">Gerenciar NFSE</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="13236">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Consulta Nota Fiscal'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/notaFiscalList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Consulta Nota Fiscal</span> 		</a> 	</li> 	<li id="13407">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Consulta Nota Fiscal Recusada'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/notaFiscalRecusadaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Consulta Nota Fiscal Recusada</span> 		</a> 	</li> 	<li id="13347">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Exportação Nota'}]); redirectURL([{name:'urlMenu', value:'../exportacaonota/exportacaoNota.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Exportação Nota</span> 		</a> 	</li> 	<li id="13427">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Livro Fiscal'}]); redirectURL([{name:'urlMenu', value:'../livrofiscal/relatorioLivroFiscal.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Livro Fiscal</span> 		</a> 	</li> 	<li id="13428">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Gerenciar NFSE->Talão Fiscal'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/notaFiscalTalaoList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Talão Fiscal</span> 		</a> 	</li> 		</ul> 	</li> <li id="14288" class=""> 		<a href="#"> 			<span class="nav-label">Regime Especial</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="14308">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Regime Especial->Emitir Nota Fiscal Regime Especial'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf?TIPO=NFRE'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Nota Fiscal Regime Especial</span> 		</a> 	</li> 	<li id="14507">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Regime Especial->Emitir Nota Fiscal Retroativa Regime Especial'}]); redirectURL([{name:'urlMenu', value:'../notafiscal/emissaoNotaFiscalList.jsf?TIPO=NFRRE'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Nota Fiscal Retroativa Regime Especial</span> 		</a> 	</li> 	<li id="14307">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Regime Especial->Emitir Guia Regime Especial'}]); redirectURL([{name:'urlMenu', value:'../guia/guiaList.jsf?regimeEspecial=S&emitir=S'}]); showMessageProcess(true);">			<span class="nav-label">Emitir Guia Regime Especial</span> 		</a> 	</li> 	<li id="14309">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Regime Especial->Gerenciar Guia Regime Especial'}]); redirectURL([{name:'urlMenu', value:'../guia/guiaList.jsf?regimeEspecial=S'}]); showMessageProcess(true);">			<span class="nav-label">Gerenciar Guia Regime Especial</span> 		</a> 	</li> 		</ul> 	</li> <li id="13010" class=""> 		<a href="#"> 			<span class="nav-label">Guia</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="13009">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Guia->Emissão de Guia'}]); redirectURL([{name:'urlMenu', value:'../guia/guiaList.jsf?emitir=S'}]); showMessageProcess(true);">			<span class="nav-label">Emissão de Guia</span> 		</a> 	</li> 	<li id="13237">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Guia->Gerenciamento de Guia'}]); redirectURL([{name:'urlMenu', value:'../guia/guiaList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Gerenciamento de Guia</span> 		</a> 	</li> 		</ul> 	</li> <li id="13888" class=""> 		<a href="#"> 			<span class="nav-label">Declaração Mensal</span> 			<span class="fa arrow"> </span> 		</a> 		<ul class="nav nav-second-level" onclick=""> 	<li id="13250">		<a onclick="saveMenuParent([{name:'nameMenu', value:'Declaração Mensal->Declaração Mensal - Dedução Base de Cálculo'}]); redirectURL([{name:'urlMenu', value:'../declaracaodeducao/declaracaoDeducaoList.jsf'}]); showMessageProcess(true);">			<span class="nav-label">Declaração Mensal - Dedução Base de Cálculo</span> 		</a> 	</li> 		</ul> 	</li> 
+    </ul><script id="j_idt74:j_idt79" type="text/javascript">saveMenuParent = function() {return PrimeFaces.ab({s:"j_idt74:j_idt79",f:"j_idt74",pa:arguments[0]});}</script><script id="j_idt74:j_idt80" type="text/javascript">redirectURL = function() {return PrimeFaces.ab({s:"j_idt74:j_idt80",f:"j_idt74",pa:arguments[0]});}</script><script id="j_idt74:j_idt81" type="text/javascript">executeEL = function() {return PrimeFaces.ab({s:"j_idt74:j_idt81",f:"j_idt74",onco:function(xhr,status,args,data){hideMessageProcess();;},pa:arguments[0]});}</script><script id="j_idt74:j_idt82" type="text/javascript">executeELAndReload = function() {return PrimeFaces.ab({s:"j_idt74:j_idt82",f:"j_idt74",onco:function(xhr,status,args,data){location.reload();;},pa:arguments[0]});}</script>
+
+</html>
+</form>
+                    </ul>
+                </div></nav><main id="wrapper" style="display: block">
+<form id="j_idt85" name="j_idt85" method="post" action="/notafiscal/paginas/templates/paginaErro.xhtml" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt85" value="j_idt85" />
+<input type="hidden" name="javax.faces.ViewState" id="j_id1:javax.faces.ViewState:3" value="-197947346589994671:-6583532863045726173" autocomplete="off" />
+
+    <div id="j_idt85:j_idt86" class="jarch__panel-title">
+        <div class="panel-title small-header transition animated fadeInDown">
+            <div class="hpanel hnavyblue">
+                <div class="panel-body" style="width: 100%; display: flex; flex-direction: row; justify-content: space-between">
+                    <div style="width: 80%">
+                        <a class="small-header-action" href="#"></a>
+                        <h2 class="font-light m-b-xs">
+                            Página Erro
+                        </h2>
+
+                        <small>
+                            
+                        </small>
+                    </div>
+                    <div style="width: 20%">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="j_idt85:j_idt89" class="jarch-divsimple content p-0 mr-2" data-effect="fadeIn">
+        <div class="content" data-effect="fadeIn">
+            <div class="row">
+                <div class="col-lg-12 animated-panel fadeIn"><div id="j_idt85:j_idt89:panelMaster" class="ui-outputpanel ui-widget hpanel hblue">
+                        <div class="panel-heading hbuilt" style="display: visible">
+                            <div class="panel-tools">
+                                <a class="showhide">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+
+                            Página Erro
+                        </div>
+
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                <div class="span8 offset2">
+                    <blockquote>
+                        <p>Ocorreu um erro imprevisto no sistema</p>
+                            <ul class="mt-5 mb-5">
+                                    <li><span style="font-size: 1.5rem !important;">Erro: Não existe(m) dado(s) para impressão</span></li>
+                            </ul>
+
+                        
+                        <small>
+                            <strong>
+                                Para maiores informações,
+                            </strong>
+                            <cite>
+                                Entre em contato com o administrador do sistema.
+                            </cite>
+                        </small>
+                    </blockquote>
+                </div>
+                            </div>
+                        </div><div id="j_idt85:j_idt89:panelFooter" style="padding: 5px; display: visible" class="panel-footer">
+                            <table class="ui-panelgrid ui-widget" style="width: 100%;">
+                                <tbody>
+                                <tr>
+                                    <td style="text-align: left"><a id="j_idt85:j_idt89:j_idt108:j_idt109" href="#" class="ui-commandlink ui-widget btn btn-warning btn-sm " onclick="javascript:history.go(-1);;PrimeFaces.ab({s:&quot;j_idt85:j_idt89:j_idt108:j_idt109&quot;,f:&quot;j_idt85&quot;,onco:function(xhr,status,args,data){;}});return false;" style="min-width: 100px">
+
+        <i class="fa fa-door-open"></i> Voltar
+    </a><script id="j_idt85:j_idt89:j_idt108:j_idt109_s" type="text/javascript">$(function(){PrimeFaces.cw("CommandLink","widget_j_idt85_j_idt89_j_idt108_j_idt109",{id:"j_idt85:j_idt89:j_idt108:j_idt109"});});</script>
+                                    </td>
+                                    <td style="text-align: center">
+                                    </td>
+                                    <td style="text-align: right">
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form></main><footer id="footer" style="display: block"><div id="j_idt118" class="ui-panelgrid ui-widget" style="width: 100%"><div id="j_idt118_content" class="ui-panelgrid-content ui-widget-content ui-grid ui-grid-responsive"><div class="ui-grid-row"><div class="ui-panelgrid-cell ui-grid-col-4"><label style="margin-bottom: 0; font-weight: normal" class="name-company pull-left">DSF / Desenvolvimento de Sistemas Fiscais</label></div><div class="ui-panelgrid-cell ui-grid-col-4"><label style="margin-bottom: 0; font-weight: normal; width: 100%; text-align: center" class="description-system pull-left">Nota Fiscal de Serviço Eletrônica / 2025.09.22.0957 WEB2</label></div><div class="ui-panelgrid-cell ui-grid-col-4"><label style="margin-bottom: 0; font-weight: normal" class="all-rigths pull-right">Todos os Direitos Reservados</label></div></div></div></div><div id="j_idt122" style="width:64px;height:64px;position:fixed;left:5px;bottom:50px" class="jarch__ajaxstatus"><div id="j_idt122_start" style="display:none"><img id="j_idt123" src="/notafiscal/javax.faces.resource/loader.gif.xhtml?ln=images" alt="" /></div><div id="j_idt122_complete" style="display:none"></div></div><script id="j_idt122_s" type="text/javascript">$(function(){PrimeFaces.cw("AjaxStatus","widget_j_idt122",{id:"j_idt122",delay:0});});</script></footer>
+        </div>
+<form id="j_idt126" name="j_idt126" method="post" action="/notafiscal/paginas/templates/paginaErro.xhtml" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt126" value="j_idt126" />
+<input type="hidden" name="javax.faces.ViewState" id="j_id1:javax.faces.ViewState:4" value="-197947346589994671:-6583532863045726173" autocomplete="off" />
+<div id="j_idt126:j_idt127" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container" style="display:none"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="j_idt126:j_idt127_title" class="ui-dialog-title"></span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Fechar"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content" id="j_idt126:j_idt127_content">
+
+                <style>
+                    .ui-tabs {
+                        width: 100%;
+                        height: 85%;
+                        border: none;
+
+                        .ui-tabs-panels {
+                            width: 100%;
+                            height: 95%;
+
+                            .ui-tabs-panel {
+                                width: 100%;
+                                height: 100%;
+                            }
+                        }
+                    }
+                </style><div id="j_idt126:j_idt129" class="ui-tabs ui-widget ui-widget-content ui-corner-all ui-hidden-container ui-tabs-top" data-widget="widget_j_idt126_j_idt129"><ul class="ui-tabs-nav ui-helper-reset ui-widget-header ui-corner-all" role="tablist"><li class="ui-tabs-header ui-state-default ui-tabs-selected ui-state-active ui-corner-top" role="tab" aria-expanded="true" aria-selected="true" data-index="0"><a href="#j_idt126:j_idt129:j_idt130" tabindex="-1">Texto</a></li></ul><div class="ui-tabs-panels"><div id="j_idt126:j_idt129:j_idt130" class="ui-tabs-panel ui-widget-content ui-corner-bottom" role="tabpanel" aria-hidden="false" data-index="0"><div id="j_idt126:j_idt129:j_idt131" class="ui-texteditor " style="width: 100%; height: 100%" aria-required="true"><div id="j_idt126:j_idt129:j_idt131_editor"></div><input id="j_idt126:j_idt129:j_idt131_input" name="j_idt126:j_idt129:j_idt131_input" type="hidden" autocomplete="off" value="" /></div><script id="j_idt126:j_idt129:j_idt131_s" type="text/javascript">$(function(){PrimeFaces.cw("TextEditor","widgetVarHelpData",{id:"j_idt126:j_idt129:j_idt131",toolbarVisible:false,readOnly:true});});</script></div></div><input id="j_idt126:j_idt129_activeIndex" name="j_idt126:j_idt129_activeIndex" type="hidden" autocomplete="off" value="0" /></div><script id="j_idt126:j_idt129_s" type="text/javascript">$(function(){PrimeFaces.cw("TabView","widget_j_idt126_j_idt129",{id:"j_idt126:j_idt129",effectDuration:"normal",scrollable:false});});</script><div id="j_idt126:j_idt134" class="ui-panelgrid ui-widget mt-1" style="width: 100%; text-align: center"><div id="j_idt126:j_idt134_content" class="ui-panelgrid-content ui-widget-content ui-grid ui-grid-responsive"><div class="ui-g"><div class="ui-panelgrid-cell ui-g-12 ui-md-12"><a id="j_idt126:j_idt135:j_idt136" href="#" class="ui-commandlink ui-widget btn btn-warning btn-sm " onclick="PF('widgetVarHelp').hide();PrimeFaces.ab({s:&quot;j_idt126:j_idt135:j_idt136&quot;,f:&quot;j_idt126&quot;,onco:function(xhr,status,args,data){;}});return false;" style="min-width: 100px">
+
+        <i class="fa fa-door-open"></i> Voltar
+    </a><script id="j_idt126:j_idt135:j_idt136_s" type="text/javascript">$(function(){PrimeFaces.cw("CommandLink","widget_j_idt126_j_idt135_j_idt136",{id:"j_idt126:j_idt135:j_idt136"});});</script></div></div></div></div></div></div><script id="j_idt126:j_idt127_s" type="text/javascript">$(function(){PrimeFaces.cw("Dialog","widgetVarHelp",{id:"j_idt126:j_idt127",resizable:false,modal:true,width:"70vw",height:"auto"});});</script>
+</form><script type="text/javascript" src="/notafiscal/javax.faces.resource/slimScroll/jquery.slimscroll.min.js.xhtml?ln=vendor"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/metisMenu/dist/metisMenu.min.js.xhtml?ln=vendor"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/iCheck/icheck.min.js.xhtml?ln=vendor"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/sparkline/index.js.xhtml?ln=vendor"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/sweetalert/dist/sweetalert.min.js.xhtml?ln=vendor"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/homer.js.xhtml?ln=scripts"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/bootstrap.min.js.xhtml?ln=menu_js_css"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/metisMenu.min.js.xhtml?ln=menu_js_css"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/i18n.js.xhtml?ln=js"></script><script type="text/javascript" src="RES_NOT_FOUND"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/jarch.js.xhtml?ln=js&amp;v=202506121029"></script><script type="text/javascript" src="/notafiscal/javax.faces.resource/local.js.xhtml?ln=js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('.botaoSairMenu')
+                .click(
+                    function () {
+                        closeSystem(
+                            "Finaliza o Sistema?",
+                            "Dados não salvo(s) serão perdido(s)",
+                            "Cancelar",
+                            "Sim, quero sair",
+                            "Cancelado",
+                            "Voltar para sistema")
+                    });
+        });
+    </script><html xmlns="http://www.w3.org/1999/xhtml">
+
+<style type="text/css">
+    .notificacao-top {
+        filter: alpha(opacity=80);
+        /*opacity: 0.8;*/
+        padding: 0;
+        z-index: 1000;
+
+        /*top: 2px!important;*/
+        height: 18px;
+        background-color: #219ae5;
+        text-align: center;
+    }
+
+    .notificacao-top > span {
+        font-size: 1.4rem !important;
+        color: white;
+        font-weight: bold;
+
+    }
+</style><div id="j_idt154" class="ui-notificationbar ui-widget ui-widget-content notificacao-top"><span style="">Atenção - Ambiente de Homologação </span></div><script id="j_idt154_s" type="text/javascript">$(function(){PrimeFaces.cw("NotificationBar","notificacaoAmbienteHomologacao",{id:"j_idt154",position:"top",effect:"slide",effectSpeed:"normal"});});</script>
+
+<script type="text/javascript">
+    $(function () {
+        if (false) {
+            // toastr.warning('Ambiente de Homologação.' , 'Atenção');
+            PF('notificacaoAmbienteHomologacao').show();
+        }
+    });
+</script>
+    
+    <script type="text/javascript">var mdChatClient = "5D3A0A3B72414F48B6E4A7D1C002B526";</script>
+    <script src="https://chat.movidesk.com/Scripts/chat-widget.min.js"></script>
+    
+
+    <style type="text/css">
+        .md-chat-widget-wrapper {
+            bottom: 10px !important;
+        }
+
+        footer td:nth-child(3) label {
+            width: 70%;
+            text-align: center;
+        }
+    </style>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-7XDZH873ED"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            const paginasEscolhidas = window.location.pathname.indexOf('notafiscal/paginas/login/bemVindo.jsf') > 0
+                || window.location.pathname.indexOf('notafiscal/paginas/notafiscal/emissaoNotaFiscalData.jsf') > 0
+                || window.location.pathname.indexOf('notafiscal/paginas/guia/guiaData.jsf') > 0
+                || window.location.pathname.indexOf('notafiscal/paginas/exportacaonota/exportacaoNota.jsf') > 0;
+
+            if (paginasEscolhidas) {
+                window.dataLayer = window.dataLayer || [];
+
+                function gtag() {
+                    dataLayer.push(arguments);
+                }
+
+                gtag('js', new Date());
+                gtag('config', 'G-7XDZH873ED');
+            }
+        });
+    </script>
+
+</html>
+<form id="j_idt159" name="j_idt159" method="post" action="/notafiscal/paginas/templates/paginaErro.xhtml" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt159" value="j_idt159" />
+<input type="hidden" name="javax.faces.ViewState" id="j_id1:javax.faces.ViewState:5" value="-197947346589994671:-6583532863045726173" autocomplete="off" />
+<span id="j_idt159:timerSessionApplication" title="" class="ui-timer ui-widget ui-widget-header ui-corner-all jarch-timer-sessao" style="display:none;border: unset"></span><script id="j_idt159:timerSessionApplication_s" type="text/javascript">$(function(){PrimeFaces.cw("ExtTimer","widget_j_idt159_timerSessionApplication",{id:"j_idt159:timerSessionApplication",timeout:1799,interval:1000,singleRun:true,format:"HH:mm:ss",autoStart:true,forward:false,locale:"pt_BR",listener:function(){PrimeFaces.ab({s:"j_idt159:timerSessionApplication",f:"j_idt159"});}});});</script>
+</form></body>
+<form id="j_idt160" name="j_idt160" method="post" action="/notafiscal/paginas/templates/paginaErro.xhtml" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt160" value="j_idt160" />
+<input type="hidden" name="javax.faces.ViewState" id="j_id1:javax.faces.ViewState:6" value="-197947346589994671:-6583532863045726173" autocomplete="off" />
+
+</form>
+
+</html>
