@@ -1,8 +1,10 @@
 #---------------------------------------------------------------------------
-# modulos/captador_SJC_login_patch.py - v9.2
-#  - Corrige NameError: set_livro_fiscal
-#  - Talão: usa IDs/labels enviados (Competência, Situação, Serviço)
-#  - Mantém downloads com evento + fallback por filesystem
+# modulos/captador_SJC_login_patch.py - v10.1
+#  - Livros (Prestados/Tomados) estável
+#  - Talão (Emitidas/Recebidas) com confirmação
+#  - XML (Emitidas/Recebidas) na página oficial exportacaonota/exportacaoNota.jsf
+#    * Emissão limpa, competência preenchida, Situação (Ativa+Cancelada), confirmação "Download"
+#    * Salvamento via FS scanning (zip/xml), print em "Nenhuma nota..."
 #---------------------------------------------------------------------------
 
 import os
@@ -34,8 +36,10 @@ URL_LIVROS_FISCAIS       = "https://notajoseense.sjc.sp.gov.br/notafiscal/pagina
 URL_SELECIONA_CADASTRO   = "https://notajoseense.sjc.sp.gov.br/notafiscal/paginas/selecionacadastro/selecionaCadastro.jsf"
 URL_BEM_VINDO            = "https://notajoseense.sjc.sp.gov.br/notafiscal/paginas/login/bemVindo.jsf"
 URL_TALAO_FISCAL         = "https://notajoseense.sjc.sp.gov.br/notafiscal/paginas/notafiscal/notaFiscalTalaoList.jsf"
+# XML (link fornecido por você)
+URL_XML_EXPORT           = "https://notajoseense.sjc.sp.gov.br/notafiscal/paginas/exportacaonota/exportacaoNota.jsf"
 
-# --- Timeouts (ms) — tunáveis por ENV ---
+# --- Timeouts (ms) — ajustáveis via ENV ---
 CLICK_WAIT_OVERLAY_MS = int(os.getenv("SJC_CLICK_OVERLAY_MS", "700"))
 POST_CLICK_PAUSE_MS   = int(os.getenv("SJC_POST_CLICK_MS", "120"))
 
@@ -53,6 +57,7 @@ OVERLAY_SELECTORS = [
 MSG_SEM_REGISTRO         = "Nenhum registro encontrado no período informado para a geração do livro fiscal"
 MSG_SEM_DADOS_IMPRESSAO  = "Não existe(m) dado(s) para impressão"
 MSG_ERRO_IMPREVISTO      = "Ocorreu um erro imprevisto no sistema"
+MSG_NENHUMA_NOTA         = "Nenhuma nota fiscal foi encontrada com o filtro informado"
 
 # =========================
 # Utilitários visuais/ajax
@@ -136,7 +141,7 @@ def _limpar_sessao(contexto, url_base: str = SJC_LOGIN_URL):
         log_info(f"Falha ao limpar storages: {e}")
 
 # =========================
-# Competência
+# Helpers diversos
 # =========================
 
 def _fmt_comp(competencia: str) -> str:
@@ -146,6 +151,10 @@ def _fmt_comp(competencia: str) -> str:
     if re.fullmatch(r"\d{2}/\d{4}", s):
         return s
     return s
+
+# =========================
+# Competência
+# =========================
 
 def preencher_competencia_livro(pagina: Page, competencia: str):
     alvo = _fmt_comp(competencia)
@@ -165,7 +174,22 @@ def preencher_competencia_livro(pagina: Page, competencia: str):
         raise PWTimeoutError("Não foi possível fixar a competência (Livros).")
 
 def preencher_competencia_talao(pagina: Page, competencia: str):
-    # IDs exatos do bloco "Competência" que você enviou
+    alvo = _fmt_comp(competencia)
+    ini = pagina.locator("#j_idt92\\:j_idt96\\:idStart_input")
+    fim = pagina.locator("#j_idt92\\:j_idt96\\:idEnd_input")
+    for loc in (ini, fim):
+        loc.scroll_into_view_if_needed()
+        loc.wait_for(state="visible", timeout=6000)
+        loc.click()
+        try: loc.clear()
+        except Exception:
+            loc.press("Control+A"); loc.press("Delete")
+        loc.type(alvo, delay=18)
+        pagina.keyboard.press("Tab")
+        pagina.wait_for_timeout(40)
+
+# ---- XML (com seletores exatos que você trouxe)
+def preencher_competencia_xml(pagina: Page, competencia: str):
     alvo = _fmt_comp(competencia)
     ini = pagina.locator("#j_idt92\\:j_idt96\\:idStart_input")
     fim = pagina.locator("#j_idt92\\:j_idt96\\:idEnd_input")
@@ -249,10 +273,10 @@ def selecionar_empresa(pagina: Page, cnpj: str):
     log_info("Painel da empresa acessado com SUCESSO!")
 
 # =========================
-# Situação / Tipo / Livro Fiscal
+# Situação / Tipo / Livro Fiscal / Talão / XML
 # =========================
 
-def _checkbox_parts_by_label(pagina: Page, label_text: str):
+def _find_checkbox_elements(pagina: Page, label_text: str):
     lab = pagina.locator(f"label:has-text('{label_text}')").first
     if lab.count() == 0:
         lab = pagina.locator(f"span.ui-outputlabel-label:has-text('{label_text}')").first
@@ -260,35 +284,85 @@ def _checkbox_parts_by_label(pagina: Page, label_text: str):
         lab = pagina.locator(f"text={label_text}").first
     if lab.count() == 0:
         raise PWTimeoutError(f"Label '{label_text}' não encontrado.")
+
+    for_attr = (lab.get_attribute("for") or "").strip()
+    if for_attr:
+        hidden = pagina.locator(f"id={for_attr}").first
+        box = pagina.locator(
+            f"xpath=//label[@for='{for_attr}']/parent::td//div[contains(@class,'ui-chkbox')]"
+            f"//div[contains(@class,'ui-chkbox-box')]"
+        ).first
+        if box.count() == 0:
+            box = pagina.locator(
+                f"xpath=//label[@for='{for_attr}']/preceding-sibling::div[contains(@class,'ui-chkbox')][1]"
+                f"//div[contains(@class,'ui-chkbox-box')]"
+            ).first
+        clicavel = box if box.count() > 0 else lab
+        if hidden.count() > 0:
+            return clicavel, hidden
+
+    td = lab.locator("xpath=ancestor::td[1]").first
+    if td.count() > 0:
+        hidden = td.locator("input[type='checkbox']").first
+        box    = td.locator(".ui-chkbox-box").first
+        if hidden.count() > 0 and (box.count() > 0 or lab.count() > 0):
+            return (box if box.count() > 0 else lab), hidden
+
     wrapper = lab.locator("xpath=following::div[contains(@class,'ui-selectbooleancheckbox')][1]").first
-    if wrapper.count() == 0:
-        wrapper = lab.locator("xpath=following::input[@type='checkbox'][1]").first
-        if wrapper.count() > 0:
-            return wrapper, wrapper, wrapper
-        raise PWTimeoutError(f"Wrapper do checkbox '{label_text}' não encontrado.")
-    box = wrapper.locator("div.ui-chkbox-box").first
-    hidden = wrapper.locator("input[type='checkbox']").first
-    return wrapper, box, hidden
+    if wrapper.count() > 0:
+        hidden = wrapper.locator("input[type='checkbox']").first
+        box    = wrapper.locator(".ui-chkbox-box").first
+        if hidden.count() > 0:
+            return (box if box.count() > 0 else wrapper), hidden
 
-def _is_checked(hidden_input) -> bool:
+    raise PWTimeoutError(f"Checkbox para '{label_text}' não encontrado.")
+
+def set_checkbox_by_label(pagina: Page, label_text: str, checked: bool,
+                          wait_overlay_ms: int = CLICK_WAIT_OVERLAY_MS,
+                          wait_ajax_ms: int = 600):
+    clicavel, hidden = _find_checkbox_elements(pagina, label_text)
+
+    def _is_checked():
+        try:
+            return bool(hidden.evaluate("el => !!el.checked"))
+        except Exception:
+            v = (hidden.get_attribute("checked") or "").lower()
+            return v in ("true", "checked", "1")
+
+    estado_atual = _is_checked()
+    if estado_atual == checked:
+        return
+
+    try: clicavel.scroll_into_view_if_needed()
+    except Exception: pass
+
     try:
-        if hidden_input.evaluate("e => e.tagName && e.tagName.toLowerCase() == 'input'"):
-            return bool(hidden_input.evaluate("e => !!e.checked"))
-        return bool(hidden_input.evaluate("e => e.checked"))
+        _esperar_overlay_sumir(pagina, wait_overlay_ms)
+        _esperar_ajax_quieto(pagina, 400)
     except Exception:
-        return False
+        pass
 
-def set_checkbox_by_label(pagina: Page, label_text: str, checked: bool):
-    wrapper, box, hidden = _checkbox_parts_by_label(pagina, label_text)
-    if _is_checked(hidden) == checked: return
-    _safe_click(pagina, box, f"Checkbox {label_text}")
-    _esperar_overlay_sumir(pagina, 600)
-    _esperar_ajax_quieto(pagina, 700)
+    clicavel.click()
+    pagina.wait_for_timeout(POST_CLICK_PAUSE_MS)
+
+    try:
+        _esperar_overlay_sumir(pagina, wait_overlay_ms)
+        _esperar_ajax_quieto(pagina, wait_ajax_ms)
+    except Exception:
+        pass
+
+    if _is_checked() != checked:
+        clicavel.click()
+        pagina.wait_for_timeout(POST_CLICK_PAUSE_MS)
+        try:
+            _esperar_overlay_sumir(pagina, wait_overlay_ms)
+            _esperar_ajax_quieto(pagina, wait_ajax_ms + 200)
+        except Exception:
+            pass
+        if _is_checked() != checked:
+            raise PWTimeoutError(f"Não consegui alterar o estado de '{label_text}' para {checked}.")
 
 def set_livro_fiscal(pagina: Page, label: str):
-    """
-    Ajusta o combobox "Agrupamento" para 'Serviços Prestados' ou 'Serviços Tomados'
-    """
     span_label = pagina.locator("span[id$=':idSelectOneMenu_label']").first
     _safe_click(pagina, span_label, "Abrir Livro Fiscal")
     painel = pagina.locator("div.ui-selectonemenu-panel:visible").first
@@ -305,14 +379,13 @@ def set_livro_fiscal(pagina: Page, label: str):
     log_info(f"Livro Fiscal ajustado para: {label}")
 
 def set_servico_radio_talao(pagina: Page, label: str):
-    # Card "Serviço": radios "Emitidas" / "Recebidas" (usa labels)
     radio_label = pagina.locator(f"label:has-text('{label}')").first
     _safe_click(pagina, radio_label, f"Serviço {label}")
     _esperar_overlay_sumir(pagina, 600)
     _esperar_ajax_quieto(pagina, 700)
 
 # =========================
-# Download helpers (rápidos)
+# Download helpers (FS)
 # =========================
 
 def _candidate_download_dirs(perfil_dir: Path, downloads_tmp_dir: Path) -> list[Path]:
@@ -347,8 +420,8 @@ def _snapshot_all(dirs: Iterable[Path]) -> Tuple[Set[Path], float]:
             continue
     return before, ts
 
-def _pick_new_pdf_any(dirs: Iterable[Path], before: Set[Path], start_ts: float,
-                      timeout_ms: int, poll_ms: int = FS_POLL_INTERVAL_MS) -> Optional[Path]:
+def _pick_new_file_any(dirs: Iterable[Path], before: Set[Path], start_ts: float,
+                       timeout_ms: int, poll_ms: int = FS_POLL_INTERVAL_MS) -> Optional[Path]:
     deadline = time.time() + timeout_ms / 1000
     while time.time() < deadline:
         for d in dirs:
@@ -407,6 +480,45 @@ def _move_to_dest_force_pdf(src: Path, dest: Path) -> Path:
         log_info(f"Arquivo salvo (FS; header não PDF para diagnóstico): {dest}")
     return dest
 
+def _move_to_dest_dynamic_ext(src: Path, dest_base: Path, prefer_exts=(".zip", ".xml", ".pdf")) -> Path:
+    dest_base.parent.mkdir(parents=True, exist_ok=True)
+    ext = src.suffix.lower()
+    try:
+        head = src.read_bytes()[:5]
+    except Exception:
+        head = b""
+    if head.startswith(b"%PDF-"):
+        final = dest_base.with_suffix(".pdf")
+    elif head.startswith(b"PK\x03\x04"):
+        final = dest_base.with_suffix(".zip")
+    elif head.startswith(b"<?xml") or b"<" in head:
+        final = dest_base.with_suffix(".xml")
+    else:
+        final = dest_base.with_suffix(ext if ext in prefer_exts else prefer_exts[0])
+
+    if final.exists():
+        base, ext2 = final.stem, final.suffix
+        i = 2
+        while final.with_name(f"{base} ({i}){ext2}").exists():
+            i += 1
+        final = final.with_name(f"{base} ({i}){ext2}")
+
+    try:
+        src.replace(final)
+    except Exception:
+        try:
+            data = src.read_bytes()
+            final.write_bytes(data)
+            src.unlink(missing_ok=True)
+        except Exception:
+            pass
+    log_info(f"Download salvo com sucesso (FS): {final}")
+    return final
+
+# =========================
+# Geração/Print - Livros
+# =========================
+
 def click_download_and_wait_fast(pagina: Page, destino: Path,
                                  perfil_dir: Path,
                                  downloads_tmp_dir: Path,
@@ -424,9 +536,9 @@ def click_download_and_wait_fast(pagina: Page, destino: Path,
     if msg:
         return False
 
-    novo = _pick_new_pdf_any(cand_dirs, before_set, start_ts, timeout_ms=FS_FALLBACK_WAIT_MS)
+    novo = _pick_new_file_any(cand_dirs, before_set, start_ts, timeout_ms=FS_FALLBACK_WAIT_MS)
     if novo:
-        _move_to_dest_force_pdf(novo, destino)
+        _move_to_dest_force_pdf(novo, destino)  # Livros => PDF
         return True
 
     dialogs = pagina.locator("div.ui-dialog[role='dialog']:visible")
@@ -434,24 +546,20 @@ def click_download_and_wait_fast(pagina: Page, destino: Path,
         dlg = dialogs.first
         btn_dlg = dlg.locator(
             "a:has-text('Download'), button:has-text('Download'), "
-            "a:has-text('Gerar'), button:has-text('Gerar')"
+            "a[id$=':btnDownload'], button[id$=':btnDownload']"
         ).first
         if btn_dlg.count() > 0 and btn_dlg.is_visible():
             before_set2, start_ts2 = _snapshot_all(cand_dirs)
-            _safe_click(pagina, btn_dlg, "Download/Gerar (diálogo)")
+            _safe_click(pagina, btn_dlg, "Download (diálogo)")
             msg2 = _toast_text(pagina, timeout=TOAST_FAST_MS)
             if msg2:
                 return False
-            novo2 = _pick_new_pdf_any(cand_dirs, before_set2, start_ts2, timeout_ms=int(FS_FALLBACK_WAIT_MS*0.7))
+            novo2 = _pick_new_file_any(cand_dirs, before_set2, start_ts2, timeout_ms=int(FS_FALLBACK_WAIT_MS*0.7))
             if novo2:
                 _move_to_dest_force_pdf(novo2, destino)
                 return True
 
     return False
-
-# =========================
-# Geração/Print - Livros
-# =========================
 
 def gerar_relatorio_livro(pagina: Page, pasta_saida: Path,
                           cliente_id: str, competencia: str,
@@ -485,23 +593,88 @@ def gerar_relatorio_livro(pagina: Page, pasta_saida: Path,
     log_error(f"Falha no download ({situacao_label}) e sem mensagem detectada. Print: {img}")
 
 # =========================
-# Geração/Print - Talão (Ativa+Cancelada em um único PDF)
+# Geração/Print - Talão
 # =========================
 
-def limpar_emissao_talao(pagina: Page):
-    # IDs exatos do bloco "Emissão" (enviados por você)
+def _click_gerar_relacao_e_confirmar(pagina: Page) -> bool:
+    btn_gerar = pagina.locator("a:has-text('Gerar Relação Notas'), button:has-text('Gerar Relação Notas')").first
+    if btn_gerar.count() == 0:
+        raise PWTimeoutError("Botão 'Gerar Relação Notas' não encontrado.")
+    _safe_click(pagina, btn_gerar, "Gerar Relação Notas")
+
+    dlg = pagina.locator("div.ui-dialog[role='dialog']:visible").filter(has_text="Deseja Realmente Confirmar").first
+    if dlg.count() == 0:
+        dlg = pagina.locator("div.ui-dialog[role='dialog']:visible").first
+
+    if dlg.count() > 0:
+        btn_conf = dlg.locator(
+            "a:has-text('Download'), button:has-text('Download'), a[id$=':btnDownload']"
+        ).first
+        if btn_conf.count() > 0 and btn_conf.is_visible():
+            _safe_click(pagina, btn_conf, "Confirmar Download")
+            return True
+    return False
+
+def gerar_relacao_talao_combined(pagina: Page, pasta_saida: Path,
+                                 cliente_id: str, competencia: str,
+                                 servico_label: str,   # "Emitidas" | "Recebidas"
+                                 perfil_dir: Path,
+                                 downloads_tmp_dir: Path):
+    set_checkbox_by_label(pagina, "Ativa", True)
+    set_checkbox_by_label(pagina, "Cancelada", True)
+    try: set_checkbox_by_label(pagina, "Substituida", False)
+    except Exception: pass
+
+    radio_label = pagina.locator(f"label:has-text('{servico_label}')").first
+    _safe_click(pagina, radio_label, f"Serviço {servico_label}")
+    _esperar_overlay_sumir(pagina, 600); _esperar_ajax_quieto(pagina, 700)
+
+    ano, mes = competencia.split("-")
+    nome_base = f"{cliente_id}_Talao_{servico_label}_AtivaCancelada_{mes}-{ano}"
+    destino   = pasta_saida / f"{nome_base}.pdf"
+
+    cand_dirs = _candidate_download_dirs(perfil_dir, downloads_tmp_dir)
+    before_set, start_ts = _snapshot_all(cand_dirs)
+
+    confirmou = _click_gerar_relacao_e_confirmar(pagina)
+
+    msg = _toast_text(pagina, timeout=TOAST_FAST_MS)
+    if msg and (MSG_NENHUMA_NOTA in msg or MSG_SEM_DADOS_IMPRESSAO in msg or MSG_ERRO_IMPREVISTO in msg):
+        img = pasta_saida / f"{nome_base}_SEM_REGISTRO.png"
+        pagina.screenshot(path=str(img), full_page=True)
+        log_info(f"Mensagem detectada ('{msg}'). Print salvo: {img}")
+        return
+
+    if not confirmou:
+        btn_fallback = pagina.locator(
+            "a:has-text('Download'), button:has-text('Download'), a[id$=':btnDownload']"
+        ).first
+        if btn_fallback.count() > 0 and btn_fallback.is_visible():
+            _safe_click(pagina, btn_fallback, "Download (fallback sem diálogo)")
+
+    novo = _pick_new_file_any(cand_dirs, before_set, start_ts, timeout_ms=FS_FALLBACK_WAIT_MS)
+    if novo:
+        _move_to_dest_force_pdf(novo, destino)
+        return
+
+    img = pasta_saida / f"{nome_base}_FALHA_SEM_TOAST.png"
+    pagina.screenshot(path=str(img), full_page=True)
+    log_error(f"Falha ao gerar Talão ({servico_label} A+Cancelada) sem toast e sem arquivo. Print: {img}")
+
+# =========================
+# Geração/Print - XML (Emitidas/Recebidas) — PÁGINA NOVA
+# =========================
+
+def limpar_emissao_xml(pagina: Page):
+    # exatamente como no HTML enviado
     alvos = [
         pagina.locator("#j_idt92\\:j_idt109\\:idStart_input"),
         pagina.locator("#j_idt92\\:j_idt109\\:idEnd_input"),
-        # fallbacks
-        pagina.locator("fieldset:has(legend:has-text('Emissão')) input").nth(0),
-        pagina.locator("fieldset:has(legend:has-text('Emissão')) input").nth(1),
     ]
-    vistos = set()
     for loc in alvos:
         try:
-            if not loc or loc.count() == 0: continue
-            el = loc.first
+            el = loc.first if loc.count() > 0 else None
+            if not el: continue
             el.scroll_into_view_if_needed()
             el.wait_for(state="visible", timeout=1500)
             el.click()
@@ -513,12 +686,40 @@ def limpar_emissao_talao(pagina: Page):
             continue
     _esperar_ajax_quieto(pagina, 400)
 
-def gerar_relacao_talao_combined(pagina: Page, pasta_saida: Path,
-                                 cliente_id: str, competencia: str,
-                                 servico_label: str,   # "Emitidas" | "Recebidas"
-                                 perfil_dir: Path,
-                                 downloads_tmp_dir: Path):
-    # Situação: marcar as duas (Ativa + Cancelada), desmarcar Substituída se existir
+def _click_gerar_xml_e_confirmar(pagina: Page) -> bool:
+    # Botão "Gerar Relação Notas" com id j_idt92:j_idt160
+    btn = pagina.locator("#j_idt92\\:j_idt160, a:has-text('Gerar Relação Notas'), button:has-text('Gerar Relação Notas')").first
+    if btn.count() == 0:
+        raise PWTimeoutError("Botão 'Gerar Relação Notas' (XML) não encontrado.")
+    _safe_click(pagina, btn, "Gerar Relação Notas (XML)")
+
+    # Diálogo "Deseja Realmente Confirmar?" com botão Download (id j_idt92:j_idt173:btnDownload)
+    dlg = pagina.locator("div.ui-dialog[role='dialog']:visible").filter(has_text="Deseja Realmente Confirmar").first
+    if dlg.count() == 0:
+        dlg = pagina.locator("div.ui-dialog[role='dialog']:visible").first
+
+    if dlg.count() > 0:
+        btn_conf = dlg.locator(
+            "#j_idt92\\:j_idt173\\:btnDownload, a:has-text('Download'), button:has-text('Download')"
+        ).first
+        if btn_conf.count() > 0 and btn_conf.is_visible():
+            _safe_click(pagina, btn_conf, "Confirmar Download XML")
+            return True
+    return False
+
+def set_servico_radio_xml(pagina: Page, label: str):
+    # “Emitidas” / “Recebidas”
+    radio_label = pagina.locator(f"label:has-text('{label}')").first
+    _safe_click(pagina, radio_label, f"Serviço {label}")
+    _esperar_overlay_sumir(pagina, 600)
+    _esperar_ajax_quieto(pagina, 700)
+
+def gerar_xml_combined(pagina: Page, pasta_saida: Path,
+                       cliente_id: str, competencia: str,
+                       servico_label: str,     # "Emitidas" | "Recebidas"
+                       perfil_dir: Path,
+                       downloads_tmp_dir: Path):
+    # Situação: Ativa + Cancelada; Substituida OFF
     try: set_checkbox_by_label(pagina, "Ativa", True)
     except Exception: pass
     try: set_checkbox_by_label(pagina, "Cancelada", True)
@@ -526,33 +727,68 @@ def gerar_relacao_talao_combined(pagina: Page, pasta_saida: Path,
     try: set_checkbox_by_label(pagina, "Substituida", False)
     except Exception: pass
 
-    # Serviço (radio)
-    set_servico_radio_talao(pagina, servico_label)
+    # Serviço
+    set_servico_radio_xml(pagina, servico_label)
 
     ano, mes = competencia.split("-")
-    nome_base = f"{cliente_id}_Talao_{servico_label}_AtivaCancelada_{mes}-{ano}"
-    destino   = pasta_saida / f"{nome_base}.pdf"
+    nome_base = f"{cliente_id}_XML_{servico_label}_AtivaCancelada_{mes}-{ano}"
+    dest_base = pasta_saida / f"{nome_base}"  # extensão dinâmica (.zip/.xml/.pdf)
 
-    ok = click_download_and_wait_fast(
-        pagina, destino, perfil_dir, downloads_tmp_dir,
-        btn_selector="a:has-text('Gerar Relação Notas'), button:has-text('Gerar Relação Notas')"
-    )
-    if ok:
-        return
+    cand_dirs = _candidate_download_dirs(perfil_dir, downloads_tmp_dir)
+    before_set, start_ts = _snapshot_all(cand_dirs)
 
+    confirmou = _click_gerar_xml_e_confirmar(pagina)
+
+    # Toast de "Nenhuma nota..." -> print e return
     msg = _toast_text(pagina, timeout=TOAST_FAST_MS)
-    if msg and ("Nenhum registro" in msg or MSG_SEM_DADOS_IMPRESSAO in msg or MSG_ERRO_IMPREVISTO in msg):
+    if msg and (MSG_NENHUMA_NOTA in msg or MSG_SEM_DADOS_IMPRESSAO in msg or MSG_ERRO_IMPREVISTO in msg):
         img = pasta_saida / f"{nome_base}_SEM_REGISTRO.png"
         pagina.screenshot(path=str(img), full_page=True)
         log_info(f"Mensagem detectada ('{msg}'). Print salvo: {img}")
         return
 
+    # Fallback: botão “Download” direto (se o diálogo sumiu rápido)
+    if not confirmou:
+        btn_fallback = pagina.locator(
+            "a:has-text('Download'), button:has-text('Download'), a[id$=':btnDownload'], a.btn-download-final"
+        ).first
+        if btn_fallback.count() > 0 and btn_fallback.is_visible():
+            _safe_click(pagina, btn_fallback, "Download XML (fallback)")
+
+    # Espera arquivo aparecer na(s) pasta(s) de download
+    novo = _pick_new_file_any(cand_dirs, before_set, start_ts, timeout_ms=FS_FALLBACK_WAIT_MS)
+    if novo:
+        _move_to_dest_dynamic_ext(novo, dest_base, prefer_exts=(".zip", ".xml", ".pdf"))
+        return
+
     img = pasta_saida / f"{nome_base}_FALHA_SEM_TOAST.png"
     pagina.screenshot(path=str(img), full_page=True)
-    log_error(f"Falha ao gerar Talão ({servico_label} Ativa+Cancelada) sem mensagem detectada. Print: {img}")
+    log_error(f"Falha ao gerar XML ({servico_label}) sem toast e sem arquivo. Print: {img}")
+
+def baixar_xmls(pagina: Page, competencia: str, cliente_id: str, config_geral: Dict,
+                perfil_dir: Path, downloads_tmp_dir: Path):
+    log_info(f"Iniciando processo de XML para a competência: {competencia}")
+    pagina.goto(URL_XML_EXPORT, wait_until="domcontentloaded")
+    _esperar_overlay_sumir(pagina, CLICK_WAIT_OVERLAY_MS); _esperar_ajax_quieto(pagina, 700)
+
+    # 1) Limpar "Emissão"
+    limpar_emissao_xml(pagina)
+    # 2) Competência
+    preencher_competencia_xml(pagina, competencia)
+
+    pasta_saida = Path(config_geral.get("pasta_saida_padrao") or "downloads") / cliente_id
+    pasta_saida.mkdir(parents=True, exist_ok=True)
+
+    # Emitidas (Prestados) + Cancelada; Recebidas (Tomados) + Cancelada
+    for servico in ("Emitidas", "Recebidas"):
+        gerar_xml_combined(
+            pagina, pasta_saida, cliente_id, competencia,
+            servico_label=servico, perfil_dir=perfil_dir, downloads_tmp_dir=downloads_tmp_dir
+        )
+    log_info("XML finalizado.")
 
 # =========================
-# Fluxos
+# Fluxos principais (Livros / Talão)
 # =========================
 
 def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, config_geral: Dict,
@@ -568,7 +804,7 @@ def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, confi
     pasta_saida = Path(config_geral.get("pasta_saida_padrao") or "downloads") / cliente_id
     pasta_saida.mkdir(parents=True, exist_ok=True)
 
-    # Prestados (padrão)
+    # Prestados
     log_info("Livro Fiscal (padrão): Serviços Prestados")
     gerar_relatorio_livro(pagina, pasta_saida, cliente_id, competencia, "Prestadas", "Normal",    perfil_dir, downloads_tmp_dir)
     gerar_relatorio_livro(pagina, pasta_saida, cliente_id, competencia, "Prestadas", "Cancelada", perfil_dir, downloads_tmp_dir)
@@ -580,6 +816,28 @@ def baixar_livros_fiscais(pagina: Page, competencia: str, cliente_id: str, confi
     gerar_relatorio_livro(pagina, pasta_saida, cliente_id, competencia, "Tomados", "Normal",    perfil_dir, downloads_tmp_dir)
     gerar_relatorio_livro(pagina, pasta_saida, cliente_id, competencia, "Tomados", "Cancelada", perfil_dir, downloads_tmp_dir)
 
+def limpar_emissao_talao(pagina: Page):
+    alvos = [
+        pagina.locator("#j_idt92\\:j_idt109\\:idStart_input"),
+        pagina.locator("#j_idt92\\:j_idt109\\:idEnd_input"),
+        pagina.locator("fieldset:has(legend:has-text('Emissão')) input").nth(0),
+        pagina.locator("fieldset:has(legend:has-text('Emissão')) input").nth(1),
+    ]
+    for loc in alvos:
+        try:
+            if loc and loc.count() > 0:
+                el = loc.first
+                el.scroll_into_view_if_needed()
+                el.wait_for(state="visible", timeout=1500)
+                el.click()
+                try: el.clear()
+                except Exception:
+                    el.press("Control+A"); el.press("Delete")
+                pagina.wait_for_timeout(40)
+        except Exception:
+            continue
+    _esperar_ajax_quieto(pagina, 400)
+
 def baixar_talao_fiscal(pagina: Page, competencia: str, cliente_id: str, config_geral: Dict,
                         perfil_dir: Path, downloads_tmp_dir: Path):
     log_info(f"Iniciando processo de TALÃO FISCAL para a competência: {competencia}")
@@ -587,15 +845,15 @@ def baixar_talao_fiscal(pagina: Page, competencia: str, cliente_id: str, config_
     _esperar_overlay_sumir(pagina, CLICK_WAIT_OVERLAY_MS)
     _esperar_ajax_quieto(pagina, 700)
 
-    # 1) Limpar "Emissão" limpa a data que vem preenchida
+    # 1) Limpar "Emissão"
     limpar_emissao_talao(pagina)
-    # 2) Preencher "Competência" (IDs exatos do card)
+    # 2) Preencher "Competência"
     preencher_competencia_talao(pagina, competencia)
 
     pasta_saida = Path(config_geral.get("pasta_saida_padrao") or "downloads") / cliente_id
     pasta_saida.mkdir(parents=True, exist_ok=True)
 
-    # 3) Gerar UM PDF por serviço (Ativa+Cancelada)
+    # 3) UM PDF por serviço (Ativa+Cancelada), com confirmação
     for servico in ("Emitidas", "Recebidas"):
         gerar_relacao_talao_combined(
             pagina, pasta_saida, cliente_id, competencia,
@@ -632,7 +890,7 @@ def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: 
                     str(perfil_dir),
                     headless=not headful,
                     accept_downloads=True,
-                    downloads_path=str(downloads_tmp_dir),
+                    downloads_path=str(downloads_tmp_dir),  # se versão suportar
                     locale="pt-BR",
                     timezone_id="America/Sao_Paulo",
                 )
@@ -650,6 +908,7 @@ def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: 
 
             pagina = contexto.new_page()
 
+            # LOGIN
             login_sjc(pagina, usuario, senha)
 
             for i, cli in enumerate(clientes):
@@ -664,8 +923,13 @@ def executar_captura_sjc(clientes: List[Dict], config_geral: Dict, competencia: 
                         pagina, competencia, cli.get('id'), config_geral,
                         perfil_dir=perfil_dir, downloads_tmp_dir=downloads_tmp_dir
                     )
-                    # TALÃO (Ativa+Cancelada em um único PDF por serviço)
+                    # TALÃO (Emitidas/Recebidas; Ativa+Cancelada)
                     baixar_talao_fiscal(
+                        pagina, competencia, cli.get('id'), config_geral,
+                        perfil_dir=perfil_dir, downloads_tmp_dir=downloads_tmp_dir
+                    )
+                    # XML (Emitidas/Recebidas; Ativa+Cancelada) — página nova
+                    baixar_xmls(
                         pagina, competencia, cli.get('id'), config_geral,
                         perfil_dir=perfil_dir, downloads_tmp_dir=downloads_tmp_dir
                     )
